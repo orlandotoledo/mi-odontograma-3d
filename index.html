@@ -424,7 +424,7 @@
   </div>
 
   <!-- Cajón Inferior Táctil (Bottom Sheet) -->
-  <div id="bottom-sheet">
+  <div id="bottom-sheet" class="minimized">
     <div class="sheet-header" onclick="toggleBottomSheet()">
       <div class="sheet-title">Pieza: <strong id="lbl-piece">Ninguna</strong> <span id="lbl-specialty-name" style="font-size:11px; color:var(--text-muted); font-weight:700;">(Odontología General)</span></div>
       <div style="font-size: 13px; color: var(--text-muted); font-weight: 800;">▲ / ▼</div>
@@ -1920,6 +1920,7 @@
       document.getElementById('btn-mode-temp').classList.toggle('active', m === 'temporal');
       selectedTooth = null;
       document.getElementById('lbl-piece').innerText = 'Ninguna';
+      document.getElementById('bottom-sheet').classList.add('minimized');
       loadArchData();
     };
 
@@ -1931,6 +1932,7 @@
       document.getElementById('lbl-perio-pal-sec').innerText = a === 'inferior' ? 'Lingual (PS / REC / BOP)' : 'Palatino (PS / REC / BOP)';
       selectedTooth = null;
       document.getElementById('lbl-piece').innerText = 'Ninguna';
+      document.getElementById('bottom-sheet').classList.add('minimized');
       loadArchData();
     };
 
