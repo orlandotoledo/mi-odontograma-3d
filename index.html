@@ -2,384 +2,366 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Odontograma 3D Integral Clínico, Consentimiento & Presupuesto CRM</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Odontograma 3D Clínico - Clean System Pro</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-    body { width: 100vw; height: 100vh; overflow: hidden; background: #080a0f; font-family: system-ui, -apple-system, sans-serif; color: #f8fafc; }
+    :root {
+      --bg-app: #cbd5e1;
+      --bg-panel: rgba(255, 255, 255, 0.96);
+      --bg-card: #f8fafc;
+      --bg-input: #ffffff;
+      --border-color: #94a3b8;
+      --border-subtle: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --active-tab-bg: #e0f2fe;
+      --active-tab-text: #0284c7;
+      --shadow-elevation: 0 8px 24px rgba(15, 23, 42, 0.12);
+    }
+
+    body.dark-mode {
+      --bg-app: #080a0f;
+      --bg-panel: rgba(15, 23, 42, 0.95);
+      --bg-card: #1e293b;
+      --bg-input: #0f172a;
+      --border-color: #334155;
+      --border-subtle: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --active-tab-bg: #1e293b;
+      --active-tab-text: #38bdf8;
+      --shadow-elevation: 0 10px 25px rgba(0, 0, 0, 0.6);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
+    body { width: 100vw; height: 100vh; overflow: hidden; background: var(--bg-app); font-family: system-ui, -apple-system, sans-serif; color: var(--text-main); touch-action: none; }
     #canvas { width: 100%; height: 100%; display: block; }
 
-    /* Barra Superior */
+    /* Barra Superior Tablet */
     #top-bar {
       position: absolute;
-      top: 16px;
-      left: 50%;
-      transform: translateX(-50%);
+      top: 12px;
+      left: 16px;
+      right: 16px;
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-      max-width: calc(100vw - 40px);
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid #334155;
-      padding: 8px 16px;
-      border-radius: 12px;
-      backdrop-filter: blur(8px);
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      padding: 8px 14px;
+      border-radius: 14px;
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow-elevation);
       z-index: 100;
     }
-    .select-btn {
-      background: #1e293b;
-      border: 1px solid #475569;
-      color: #cbd5e1;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
+    .top-group { display: flex; align-items: center; gap: 8px; }
+    
+    .touch-btn {
+      min-height: 40px;
+      padding: 0 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
       cursor: pointer;
-      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
     }
-    .select-btn:hover { background: #334155; }
-    .select-btn.active {
-      background: #2563eb;
-      border-color: #3b82f6;
-      color: #fff;
-      box-shadow: 0 0 12px rgba(37, 99, 235, 0.5);
-    }
-    .btn-pdf-top { background: #be123c; border-color: #e11d48; color: #fff; }
-    .btn-pdf-top:hover { background: #9f1239; }
+    .touch-btn:active { transform: scale(0.97); }
+    .touch-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; box-shadow: 0 0 10px rgba(2, 132, 199, 0.35); }
+    .btn-alert { background: #ea580c; border-color: #f97316; color: #fff; }
+    .btn-budget-pill { background: #0f172a; border-color: #38bdf8; color: #38bdf8; font-size: 13px; }
+    body.dark-mode .btn-budget-pill { background: #1e293b; }
+    .btn-pdf { background: #be123c; border-color: #e11d48; color: #fff; }
 
-    /* Barra de Filtros de Capas (Flotante Derecha) */
-    #layer-bar {
+    /* Barra de Filtros de Capas 3D */
+    #layer-floating-bar {
       position: absolute;
-      top: 16px;
-      right: 20px;
+      top: 70px;
+      left: 16px;
+      display: flex;
+      gap: 6px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      padding: 6px 10px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow-elevation);
+      z-index: 99;
+      max-width: calc(100vw - 120px);
+      overflow-x: auto;
+    }
+    .layer-chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 5px 9px;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .layer-chip.active { background: #0f766e; border-color: #14b8a6; color: #fff; }
+
+    /* Riel Lateral Derecho de Especialidades */
+    #specialty-rail {
+      position: absolute;
+      top: 70px;
+      right: 16px;
       display: flex;
       flex-direction: column;
       gap: 6px;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid #334155;
-      padding: 10px;
-      border-radius: 12px;
-      backdrop-filter: blur(8px);
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      padding: 8px 6px;
+      border-radius: 14px;
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow-elevation);
       z-index: 100;
+      max-height: calc(100vh - 90px);
+      overflow-y: auto;
     }
-    .layer-title { font-size: 10px; font-weight: 800; color: #38bdf8; text-transform: uppercase; margin-bottom: 2px; }
-    .layer-btn {
-      background: #1e293b;
-      border: 1px solid #334155;
-      color: #94a3b8;
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
+    .rail-btn {
+      min-width: 46px;
+      min-height: 46px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      position: relative;
       transition: 0.15s;
     }
-    .layer-btn.active { background: #0f766e; border-color: #14b8a6; color: #fff; }
+    .rail-btn span { font-size: 8px; font-weight: 800; color: var(--text-muted); margin-top: 2px; }
+    .rail-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .rail-btn.active span { color: #fff; }
 
-    /* Panel Lateral */
-    #sidebar {
+    /* Cajón Inferior Táctil (Bottom Sheet) */
+    #bottom-sheet {
       position: absolute;
-      top: 75px;
-      left: 20px;
-      width: 420px;
-      max-height: calc(100vh - 95px);
-      overflow-y: auto;
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid #334155;
-      border-radius: 12px;
+      bottom: 16px;
+      left: 16px;
+      width: 470px;
+      max-height: calc(100vh - 140px);
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
       padding: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.2);
+      backdrop-filter: blur(14px);
       z-index: 100;
+      overflow-y: auto;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
-
-    /* Pestañas Clínicas en Dos Líneas */
-    .tab-bar { 
-      display: flex; 
-      gap: 4px; 
-      margin-bottom: 12px; 
-      border-bottom: 1px solid #334155; 
-      padding-bottom: 8px; 
+    #bottom-sheet.minimized {
+      transform: translateY(calc(100% - 48px));
     }
-    .tab-btn {
-      flex: 1;
-      background: transparent;
-      border: none;
-      color: #94a3b8;
-      padding: 6px 2px;
-      font-size: 9.5px;
-      font-weight: 700;
-      line-height: 1.25;
-      cursor: pointer;
-      border-radius: 6px;
-      transition: 0.2s;
-      white-space: normal;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 38px;
-    }
-    .tab-btn:hover { color: #f8fafc; background: #1e293b; }
-    .tab-btn.active { background: #1e293b; color: #38bdf8; }
-
-    .selected-info { font-size: 13px; margin-bottom: 12px; color: #94a3b8; }
-    .selected-info strong { color: #38bdf8; font-size: 18px; }
-
-    /* Modo Odontograma */
-    .diag-mode-row { display: flex; gap: 6px; margin-bottom: 10px; }
-    .btn-mode {
-      flex: 1;
-      padding: 6px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      border: 1px solid #334155;
-      cursor: pointer;
-      background: #1e293b;
-      color: #cbd5e1;
-      transition: 0.2s;
-    }
-    .btn-mode.active-caries { background: #dc2626; color: #fff; border-color: #ef4444; }
-    .btn-mode.active-resina { background: #2563eb; color: #fff; border-color: #3b82f6; }
-
-    .cross-container {
-      display: grid;
-      grid-template-columns: repeat(3, 42px);
-      grid-template-rows: repeat(3, 42px);
-      gap: 4px;
-      justify-content: center;
-      margin: 10px 0 14px;
-    }
-    .cross-cell {
-      background: #1e293b;
-      border: 1px solid #475569;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 800;
-      cursor: pointer;
-      color: #94a3b8;
-    }
-    .cross-cell.active-caries { background: #ef4444; color: #fff; border-color: #b91c1c; }
-    .cross-cell.active-resina { background: #3b82f6; color: #fff; border-color: #1d4ed8; }
-
-    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-    .btn-pat {
-      background: #1e293b;
-      border: 1px solid #334155;
-      color: #cbd5e1;
-      padding: 7px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-    }
-    .btn-pat.active { border-color: #38bdf8; background: #0284c7; color: #fff; }
-
-    /* Módulo Periodontograma */
-    .perio-section-title { font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; margin: 12px 0 6px; }
-    .perio-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
-    .perio-input-card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 6px;
-      padding: 6px;
-      text-align: center;
-    }
-    .perio-site-lbl { font-size: 10px; color: #94a3b8; font-weight: 700; margin-bottom: 4px; }
-    .perio-inputs-row { display: flex; gap: 4px; margin-bottom: 4px; }
-    .perio-num-input {
-      width: 100%;
-      background: #0f172a;
-      border: 1px solid #475569;
-      border-radius: 4px;
-      color: #f8fafc;
-      font-size: 11px;
-      font-weight: 800;
-      text-align: center;
-      padding: 4px 0;
-    }
-    .input-lbl-micro { font-size: 8px; color: #64748b; font-weight: 700; display: block; margin-bottom: 2px; }
-    
-    .perio-check-btn {
-      font-size: 10px;
-      background: #0f172a;
-      border: 1px solid #475569;
-      color: #94a3b8;
-      border-radius: 4px;
-      width: 100%;
-      padding: 4px 0;
-      cursor: pointer;
-      font-weight: 700;
-    }
-    .perio-check-btn.active-bop { background: #dc2626; color: #fff; border-color: #ef4444; }
-
-    .selector-row { display: flex; gap: 4px; align-items: center; margin-bottom: 6px; }
-    .opt-btn {
-      flex: 1;
-      background: #1e293b;
-      border: 1px solid #334155;
-      color: #cbd5e1;
-      padding: 6px 0;
-      font-size: 11px;
-      font-weight: 700;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .opt-btn.active-mov { background: #f59e0b; color: #000; border-color: #fbbf24; }
-
-    /* Módulo Prótesis */
-    .protesis-card { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 10px; margin-bottom: 12px; }
-    .bridge-status { font-size: 11px; color: #94a3b8; margin: 6px 0; }
-    .btn-action-bridge {
-      width: 100%;
-      background: #d97706;
-      color: #fff;
-      border: none;
-      padding: 8px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .btn-action-bridge:hover { background: #b45309; }
-
-    /* Módulo Ortodoncia */
-    .ortho-card { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
-    .btn-full-arch {
-      width: 100%;
-      background: #0284c7;
-      color: #fff;
-      border: none;
-      padding: 8px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 6px;
-      transition: all 0.2s;
-    }
-    .btn-full-arch:hover { background: #0369a1; }
-    .btn-full-arch.active { background: #16a34a !important; border: 1px solid #4ade80 !important; color: #fff !important; }
-
-    /* Módulo Presupuesto */
-    .budget-total-box {
-      background: #0f172a;
-      border: 1px solid #3b82f6;
-      border-radius: 8px;
-      padding: 12px;
-      text-align: center;
-      margin-bottom: 12px;
-    }
-    .budget-total-val { font-size: 24px; font-weight: 800; color: #38bdf8; margin-top: 4px; }
-    .budget-list { max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
-    .budget-item {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 6px;
-      padding: 8px 10px;
+    .sheet-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 11px;
-    }
-    .btn-ghl-sync {
-      width: 100%;
-      background: #16a34a;
-      color: #fff;
-      border: none;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 800;
+      margin-bottom: 10px;
       cursor: pointer;
-      transition: 0.2s;
-      margin-bottom: 8px;
     }
-    .btn-ghl-sync:hover { background: #15803d; }
-    .btn-pdf-download {
-      width: 100%;
-      background: #e11d48;
-      color: #fff;
-      border: none;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .btn-pdf-download:hover { background: #be123c; }
+    .sheet-title { font-size: 14.5px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px; }
+    .sheet-title strong { color: var(--primary); font-size: 19px; }
 
-    /* Modal Consentimiento y Firma Digital */
-    #consent-modal {
+    /* Semáforo Táctil */
+    .traffic-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+      background: var(--bg-card);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+    }
+    .traffic-btn {
+      min-height: 36px;
+      border: none;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      color: var(--text-muted);
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      transition: 0.15s;
+    }
+    .traffic-btn.active-diagnosticado { background: #dc2626; color: #fff; border-color: #b91c1c; }
+    .traffic-btn.active-existente { background: #2563eb; color: #fff; border-color: #1d4ed8; }
+    .traffic-btn.active-realizado { background: #16a34a; color: #fff; border-color: #15803d; }
+
+    /* Cruz Dental Táctil Limpia */
+    .cross-container {
+      display: grid;
+      grid-template-columns: repeat(3, 44px);
+      grid-template-rows: repeat(3, 44px);
+      gap: 5px;
+      justify-content: center;
+      margin: 6px 0 12px;
+    }
+    .cross-cell {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-color);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+    .cross-cell.state-diagnosticado { background: #dc2626; color: #fff; border-color: #b91c1c; }
+    .cross-cell.state-existente { background: #2563eb; color: #fff; border-color: #1d4ed8; }
+    .cross-cell.state-realizado { background: #16a34a; color: #fff; border-color: #15803d; }
+
+    /* Grillas Táctiles */
+    .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
+    .grid-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 6px; }
+    .grid-4col { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 6px; }
+
+    .action-touch-btn {
+      min-height: 40px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 8px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 4px;
+    }
+    .action-touch-btn:active { transform: scale(0.97); }
+    .action-touch-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+    /* Tarjetas de Periodoncia */
+    .perio-site-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 6px 4px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .bop-toggle-btn {
+      min-height: 28px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .bop-toggle-btn.active-bop {
+      background: #dc2626 !important;
+      border-color: #ef4444 !important;
+      color: #fff !important;
+      box-shadow: 0 0 8px rgba(220, 38, 38, 0.4);
+    }
+
+    .section-lbl { font-size: 10.5px; font-weight: 800; color: var(--primary); text-transform: uppercase; margin: 8px 0 4px; }
+
+    /* Modales */
+    .modal-overlay {
       display: none;
       position: fixed;
       top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.75);
-      backdrop-filter: blur(4px);
-      z-index: 200;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(8px);
+      z-index: 300;
       align-items: center;
       justify-content: center;
     }
-    .modal-box-large {
-      background: #0f172a;
-      border: 1px solid #334155;
-      border-radius: 12px;
-      padding: 24px;
+    .modal-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 22px;
       width: 480px;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: 0 20px 30px rgba(0,0,0,0.8);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
     }
     .modal-input {
       width: 100%;
-      background: #1e293b;
-      border: 1px solid #475569;
-      border-radius: 6px;
-      color: #f8fafc;
+      min-height: 40px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
       padding: 8px 12px;
-      font-size: 12px;
+      font-size: 12.5px;
       margin-bottom: 10px;
-    }
-    .consent-text-box {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 6px;
-      padding: 10px;
-      font-size: 10.5px;
-      color: #94a3b8;
-      line-height: 1.4;
-      height: 90px;
-      overflow-y: auto;
-      margin-bottom: 12px;
     }
     #signature-pad {
       background: #ffffff;
-      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
       cursor: crosshair;
       touch-action: none;
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
-    .modal-btn-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+    .modal-btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+
+    #alert-pill-box {
+      position: absolute;
+      top: 110px;
+      left: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      z-index: 99;
+      pointer-events: none;
+      max-width: 400px;
+    }
+    .alert-pill {
+      background: #dc2626;
+      color: #fff;
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 20px;
+      box-shadow: 0 3px 10px rgba(220, 38, 38, 0.35);
+    }
 
     #status {
       position: absolute;
       bottom: 16px;
-      left: 20px;
-      font-size: 12px;
-      color: #64748b;
+      right: 75px;
+      font-size: 11px;
+      color: var(--text-muted);
       font-family: monospace;
-      z-index: 100;
+      z-index: 90;
+      background: var(--bg-panel);
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -391,90 +373,72 @@
 </head>
 <body>
 
-  <!-- Modal Consentimiento Informado & Firma -->
-  <div id="consent-modal">
-    <div class="modal-box-large">
-      <h3 style="font-size: 15px; color: #38bdf8; margin-bottom: 10px;">Consentimiento Informado y Validación</h3>
-      
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-        <div>
-          <label style="font-size: 10.5px; color: #94a3b8;">Nombre del Paciente:</label>
-          <input type="text" id="pdf-patient-name" class="modal-input" placeholder="Juan Pérez">
-        </div>
-        <div>
-          <label style="font-size: 10.5px; color: #94a3b8;">RUT / Documento ID:</label>
-          <input type="text" id="pdf-patient-id" class="modal-input" placeholder="12.345.678-9">
-        </div>
-      </div>
+  <div id="alert-pill-box"></div>
 
-      <label style="font-size: 10.5px; color: #94a3b8;">Teléfono del Paciente <span style="color:#38bdf8;">(requerido para enviar a GHL)</span>:</label>
-      <input type="tel" id="pdf-patient-phone" class="modal-input" placeholder="+56 9 1234 5678">
-
-      <label style="font-size: 10.5px; color: #94a3b8;">Doctor / Tratante:</label>
-      <input type="text" id="pdf-doctor-name" class="modal-input" value="Dr. Orlando Toledo">
-
-      <label style="font-size: 10.5px; color: #94a3b8;">Declaración de Consentimiento:</label>
-      <div class="consent-text-box">
-        Yo, en pleno uso de mis facultades, declaro que he sido informado/a detalladamente por el profesional tratante acerca del diagnóstico, plan de tratamiento, aranceles, alternativas y eventuales riesgos de los procedimientos descritos en esta ficha clínica digital y representados en el modelo 3D. Otorgo mi conformidad y acepto los términos del presupuesto presentado.
-      </div>
-
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-        <label style="font-size: 10.5px; color: #94a3b8;">Firma Táctil del Paciente / Tutor:</label>
-        <button onclick="clearSignature()" style="background:transparent; border:none; color:#f43f5e; font-size:10.5px; cursor:pointer; font-weight:700;">Limpiar Firma</button>
-      </div>
-      <canvas id="signature-pad" width="430" height="110"></canvas>
-
-      <div class="modal-btn-row">
-        <button class="select-btn" onclick="closeConsentModal()">Cancelar</button>
-        <button class="select-btn" style="background:#16a34a; border-color:#22c55e; color:#fff;" onclick="submitConsent('ghl')">🚀 Enviar a GHL</button>
-        <button class="select-btn active" style="background:#e11d48; border-color:#f43f5e;" onclick="submitConsent('pdf')">📄 Descargar PDF</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Barra Superior -->
+  <!-- Barra Superior Tablet -->
   <div id="top-bar">
-    <button class="select-btn active" id="btn-mode-adult" onclick="setDentitionMode('adult')">Permanente (Adulto)</button>
-    <button class="select-btn" id="btn-mode-temp" onclick="setDentitionMode('temporal')">Temporal (Niños)</button>
-    <div style="width: 1px; background: #334155; margin: 0 4px;"></div>
-    <button class="select-btn active" id="btn-arch-inf" onclick="setArch('inferior')">Arcada Inferior</button>
-    <button class="select-btn" id="btn-arch-sup" onclick="setArch('superior')">Arcada Superior</button>
-    <div style="width: 1px; background: #334155; margin: 0 4px;"></div>
-    <button class="select-btn btn-pdf-top" onclick="openConsentModal('pdf')">📄 Exportar PDF</button>
-  </div>
-
-  <!-- Filtros de Capas Visuales -->
-  <div id="layer-bar">
-    <div class="layer-title">Capas 3D</div>
-    <button class="layer-btn active" id="layer-general" onclick="toggleLayer('general')"><span>Restauradora</span> <span id="ind-general">ON</span></button>
-    <button class="layer-btn active" id="layer-surgery" onclick="toggleLayer('surgery')"><span>Cirugía/Ápice</span> <span id="ind-surgery">ON</span></button>
-    <button class="layer-btn active" id="layer-perio" onclick="toggleLayer('perio')"><span>Periodoncia</span> <span id="ind-perio">ON</span></button>
-    <button class="layer-btn active" id="layer-bridges" onclick="toggleLayer('bridges')"><span>Prótesis Fija</span> <span id="ind-bridges">ON</span></button>
-    <button class="layer-btn active" id="layer-pediatric" onclick="toggleLayer('pediatric')"><span>Odontopediatría</span> <span id="ind-pediatric">ON</span></button>
-    <button class="layer-btn active" id="layer-ortho" onclick="toggleLayer('ortho')"><span>Ortodoncia</span> <span id="ind-ortho">ON</span></button>
-  </div>
-
-  <!-- Panel Lateral con Pestañas en 2 Líneas Formales -->
-  <div id="sidebar">
-    <div class="tab-bar">
-      <button class="tab-btn active" id="tab-odonto" onclick="switchTab('odonto')">Odontología<br>General</button>
-      <button class="tab-btn" id="tab-cirugia" onclick="switchTab('cirugia')">Cirugía y<br>Ápice</button>
-      <button class="tab-btn" id="tab-perio" onclick="switchTab('perio')">Periodoncia<br>Clínica</button>
-      <button class="tab-btn" id="tab-protesis" onclick="switchTab('protesis')">Prótesis<br>Fija</button>
-      <button class="tab-btn" id="tab-pediatria" onclick="switchTab('pediatria')">Odonto-<br>pediatría</button>
-      <button class="tab-btn" id="tab-ortho" onclick="switchTab('ortho')">Ortodoncia<br>Clínica</button>
-      <button class="tab-btn" id="tab-budget" onclick="switchTab('budget')">Plan y<br>Aranceles</button>
+    <div class="top-group">
+      <button class="touch-btn active" id="btn-mode-adult" onclick="setDentitionMode('adult')">Permanente</button>
+      <button class="touch-btn" id="btn-mode-temp" onclick="setDentitionMode('temporal')">Niños</button>
+      <div style="width: 1px; height: 22px; background: var(--border-color); margin: 0 4px;"></div>
+      <button class="touch-btn active" id="btn-arch-inf" onclick="setArch('inferior')">Inferior</button>
+      <button class="touch-btn" id="btn-arch-sup" onclick="setArch('superior')">Superior</button>
     </div>
 
-    <div class="selected-info">Pieza: <strong id="lbl-piece">Ninguna</strong></div>
+    <div class="top-group">
+      <button class="touch-btn btn-alert" onclick="openAnamnesisModal()">⚠️ Alertas</button>
+      <button class="touch-btn btn-budget-pill" id="btn-top-budget" onclick="openBudgetModal()">💰 $0 CLP</button>
+      <button class="touch-btn" id="btn-theme-toggle" onclick="toggleAppTheme()">☀️</button>
+      <button class="touch-btn btn-pdf" onclick="openConsentModal('pdf')">📄 PDF</button>
+    </div>
+  </div>
 
-    <!-- Pestaña 1: General -->
+  <!-- Barra de Filtros de Capas 3D -->
+  <div id="layer-floating-bar">
+    <button class="layer-chip active" id="layer-general" onclick="toggleLayer('general')">Restauradora</button>
+    <button class="layer-chip active" id="layer-surgery" onclick="toggleLayer('surgery')">Cirugía</button>
+    <button class="layer-chip active" id="layer-perio" onclick="toggleLayer('perio')">Perio/BOP</button>
+    <button class="layer-chip active" id="layer-bridges" onclick="toggleLayer('bridges')">Prót. Fija</button>
+    <button class="layer-chip active" id="layer-removible" onclick="toggleLayer('removible')">PPR</button>
+    <button class="layer-chip active" id="layer-occlusion" onclick="toggleLayer('occlusion')">Oclusión</button>
+    <button class="layer-chip active" id="layer-trauma" onclick="toggleLayer('trauma')">Trauma</button>
+    <button class="layer-chip active" id="layer-malposition" onclick="toggleLayer('malposition')">Eje/Diastema</button>
+    <button class="layer-chip active" id="layer-estetica" onclick="toggleLayer('estetica')">VITA</button>
+    <button class="layer-chip active" id="layer-pediatric" onclick="toggleLayer('pediatric')">Odontopediatría</button>
+    <button class="layer-chip active" id="layer-ortho" onclick="toggleLayer('ortho')">Ortodoncia</button>
+  </div>
+
+  <!-- Riel Lateral Derecho de Especialidades -->
+  <div id="specialty-rail">
+    <button class="rail-btn active" id="rail-odonto" onclick="switchSpecialty('odonto')">🦷<span>General</span></button>
+    <button class="rail-btn" id="rail-cirugia" onclick="switchSpecialty('cirugia')">🔪<span>Cirugía</span></button>
+    <button class="rail-btn" id="rail-perio" onclick="switchSpecialty('perio')">📏<span>Perio</span></button>
+    <button class="rail-btn" id="rail-protesis" onclick="switchSpecialty('protesis')">🌉<span>Fija</span></button>
+    <button class="rail-btn" id="rail-removible" onclick="switchSpecialty('removible')">🌸<span>PPR</span></button>
+    <button class="rail-btn" id="rail-occlusion" onclick="switchSpecialty('occlusion')">🛡️<span>Oclusión</span></button>
+    <button class="rail-btn" id="rail-trauma" onclick="switchSpecialty('trauma')">⚡<span>Trauma</span></button>
+    <button class="rail-btn" id="rail-malposition" onclick="switchSpecialty('malposition')">↔️<span>Eje</span></button>
+    <button class="rail-btn" id="rail-estetica" onclick="switchSpecialty('estetica')">🎨<span>Color</span></button>
+    <button class="rail-btn" id="rail-pediatria" onclick="switchSpecialty('pediatria')">👶<span>Pediat.</span></button>
+    <button class="rail-btn" id="rail-ortho" onclick="switchSpecialty('ortho')">📦<span>Orto</span></button>
+  </div>
+
+  <!-- Cajón Inferior Táctil (Bottom Sheet) -->
+  <div id="bottom-sheet">
+    <div class="sheet-header" onclick="toggleBottomSheet()">
+      <div class="sheet-title">Pieza: <strong id="lbl-piece">Ninguna</strong> <span id="lbl-specialty-name" style="font-size:11px; color:var(--text-muted); font-weight:700;">(Odontología General)</span></div>
+      <div style="font-size: 13px; color: var(--text-muted); font-weight: 800;">▲ / ▼</div>
+    </div>
+
+    <!-- Semáforo de Estado Clínico -->
+    <div class="traffic-row">
+      <button class="traffic-btn active-diagnosticado" id="traffic-diagnosticado" onclick="setClinicalState('diagnosticado')">🔴 Requerido</button>
+      <button class="traffic-btn" id="traffic-existente" onclick="setClinicalState('existente')">🔵 Previo</button>
+      <button class="traffic-btn" id="traffic-realizado" onclick="setClinicalState('realizado')">🟢 Realizado</button>
+    </div>
+
+    <!-- 1. Odontología General (Sistema Limpio por Caras) -->
     <div id="panel-odonto">
-      <div class="diag-mode-row">
-        <button class="btn-mode active-caries" id="mode-caries" onclick="setSurfaceMode('caries')">🔴 Caries</button>
-        <button class="btn-mode" id="mode-resina" onclick="setSurfaceMode('resina')">🔵 Resina</button>
-      </div>
-
       <div class="cross-container">
         <div></div>
         <div class="cross-cell" id="face-v" onclick="toggleFace('V')">V</div>
@@ -486,182 +450,248 @@
         <div class="cross-cell" id="face-l" onclick="toggleFace('L')">L</div>
         <div></div>
       </div>
-
-      <div class="btn-grid">
-        <button class="btn-pat" id="btn-corona" onclick="setGeneralCondition('corona')">👑 Corona</button>
-        <button class="btn-pat" id="btn-endodoncia" onclick="setGeneralCondition('endodoncia')">⚡ Conducto</button>
-        <button class="btn-pat" id="btn-implante" onclick="setGeneralCondition('implante')">🔩 Implante</button>
-        <button class="btn-pat" id="btn-ausente" onclick="setGeneralCondition('ausente')">❌ Ausente</button>
+      <div class="grid-2col">
+        <button class="action-touch-btn" id="btn-corona" onclick="setGeneralCondition('corona')">👑 Corona</button>
+        <button class="action-touch-btn" id="btn-endodoncia" onclick="setGeneralCondition('endodoncia')">⚡ Conducto</button>
+        <button class="action-touch-btn" id="btn-implante" onclick="setGeneralCondition('implante')">🔩 Implante</button>
+        <button class="action-touch-btn" id="btn-ausente" onclick="setGeneralCondition('ausente')">❌ Ausente</button>
       </div>
     </div>
 
-    <!-- Pestaña 2: Cirugía Oral y Diagnóstico Periapical -->
+    <!-- 2. Cirugía Oral -->
     <div id="panel-cirugia" style="display: none;">
-      <div class="perio-section-title">Cirugía Oral y Extracciones</div>
-      <div class="btn-grid" style="margin-bottom: 10px;">
-        <button class="btn-pat" id="btn-surg-exodoncia" onclick="setSurgCondition('exodoncia')">🦷 Exodoncia Indicada</button>
-        <button class="btn-pat" id="btn-surg-impactado" onclick="setSurgCondition('impactado')">⚠️ Muela Impactada</button>
+      <div class="section-lbl">Cirugía y Exodoncias</div>
+      <div class="grid-2col">
+        <button class="action-touch-btn" id="btn-surg-exodoncia" onclick="setSurgCondition('exodoncia')">🦷 Exodoncia</button>
+        <button class="action-touch-btn" id="btn-surg-resto" onclick="setSurgCondition('resto')">🪵 Resto Radicular</button>
+        <button class="action-touch-btn" id="btn-surg-impactado" onclick="setSurgCondition('impactado')">⚠️ Impactada</button>
+        <button class="action-touch-btn" id="btn-surg-lesion" onclick="setSurgCondition('lesion')">🔴 Quiste/Ápice</button>
       </div>
-
-      <div class="perio-section-title">Patología Periapical y Pernos</div>
-      <div class="btn-grid" style="margin-bottom: 10px;">
-        <button class="btn-pat" id="btn-surg-lesion" onclick="setSurgCondition('lesion')">🔴 Quiste / Granuloma</button>
-        <button class="btn-pat" id="btn-surg-perno" onclick="setSurgCondition('perno')">📍 Perno / Muñón</button>
-      </div>
+      <button class="action-touch-btn" id="btn-surg-perno" style="width:100%;" onclick="setSurgCondition('perno')">📍 Perno / Muñón Colado</button>
     </div>
 
-    <!-- Pestaña 3: Periodoncia -->
+    <!-- 3. Periodoncia Completa (6 Sitios) -->
     <div id="panel-perio" style="display: none;">
-      <div class="perio-section-title">Vestibular (PS mm / REC mm / BOP)</div>
-      <div class="perio-grid">
-        <div class="perio-input-card">
-          <div class="perio-site-lbl">MV</div>
-          <div class="perio-inputs-row">
-            <div><span class="input-lbl-micro">PS</span><input type="number" id="ps-mv" min="1" max="12" value="2" class="perio-num-input" onchange="updatePerioValue('depths', 'mv', this.value)"></div>
-            <div><span class="input-lbl-micro">REC</span><input type="number" id="rec-mv" min="0" max="9" value="0" class="perio-num-input" onchange="updatePerioValue('recession', 'mv', this.value)"></div>
-          </div>
-          <button id="bop-mv" class="perio-check-btn" onclick="toggleBOP('mv')">🩸 BOP</button>
+      <div class="section-lbl">Vestibular (PS / REC / BOP)</div>
+      <div class="grid-3col">
+        <div class="perio-site-card">
+          <span style="font-size:10px; font-weight:800; color:var(--text-muted);">MV</span>
+          <button class="action-touch-btn" style="min-height:30px; font-size:10.5px;" onclick="cycleDepth('mv')">PS: <b id="lbl-perio-mv">2mm</b></button>
+          <button class="action-touch-btn" style="min-height:26px; font-size:9.5px; background:var(--bg-input);" onclick="cycleRecession('mv')">REC: <b id="lbl-rec-mv">0mm</b></button>
+          <button class="bop-toggle-btn" id="btn-bop-mv" onclick="toggleSiteBOP('mv')">🩸 Sangrado</button>
         </div>
-        <div class="perio-input-card">
-          <div class="perio-site-lbl">V</div>
-          <div class="perio-inputs-row">
-            <div><span class="input-lbl-micro">PS</span><input type="number" id="ps-v" min="1" max="12" value="2" class="perio-num-input" onchange="updatePerioValue('depths', 'v', this.value)"></div>
-            <div><span class="input-lbl-micro">REC</span><input type="number" id="rec-v" min="0" max="9" value="0" class="perio-num-input" onchange="updatePerioValue('recession', 'v', this.value)"></div>
-          </div>
-          <button id="bop-v" class="perio-check-btn" onclick="toggleBOP('v')">🩸 BOP</button>
+        <div class="perio-site-card">
+          <span style="font-size:10px; font-weight:800; color:var(--text-muted);">V</span>
+          <button class="action-touch-btn" style="min-height:30px; font-size:10.5px;" onclick="cycleDepth('v')">PS: <b id="lbl-perio-v">2mm</b></button>
+          <button class="action-touch-btn" style="min-height:26px; font-size:9.5px; background:var(--bg-input);" onclick="cycleRecession('v')">REC: <b id="lbl-rec-v">0mm</b></button>
+          <button class="bop-toggle-btn" id="btn-bop-v" onclick="toggleSiteBOP('v')">🩸 Sangrado</button>
         </div>
-        <div class="perio-input-card">
-          <div class="perio-site-lbl">DV</div>
-          <div class="perio-inputs-row">
-            <div><span class="input-lbl-micro">PS</span><input type="number" id="ps-dv" min="1" max="12" value="2" class="perio-num-input" onchange="updatePerioValue('depths', 'dv', this.value)"></div>
-            <div><span class="input-lbl-micro">REC</span><input type="number" id="rec-dv" min="0" max="9" value="0" class="perio-num-input" onchange="updatePerioValue('recession', 'dv', this.value)"></div>
-          </div>
-          <button id="bop-dv" class="perio-check-btn" onclick="toggleBOP('dv')">🩸 BOP</button>
+        <div class="perio-site-card">
+          <span style="font-size:10px; font-weight:800; color:var(--text-muted);">DV</span>
+          <button class="action-touch-btn" style="min-height:30px; font-size:10.5px;" onclick="cycleDepth('dv')">PS: <b id="lbl-perio-dv">2mm</b></button>
+          <button class="action-touch-btn" style="min-height:26px; font-size:9.5px; background:var(--bg-input);" onclick="cycleRecession('dv')">REC: <b id="lbl-rec-dv">0mm</b></button>
+          <button class="bop-toggle-btn" id="btn-bop-dv" onclick="toggleSiteBOP('dv')">🩸 Sangrado</button>
         </div>
       </div>
 
-      <div class="perio-section-title" id="lbl-perio-pal">Lingual / Palatino</div>
-      <div class="perio-grid">
-        <div class="perio-input-card">
-          <div class="perio-site-lbl">ML</div>
-          <div class="perio-inputs-row">
-            <div><span class="input-lbl-micro">PS</span><input type="number" id="ps-ml" min="1" max="12" value="2" class="perio-num-input" onchange="updatePerioValue('depths', 'ml', this.value)"></div>
-            <div><span class="input-lbl-micro">REC</span><input type="number" id="rec-ml" min="0" max="9" value="0" class="perio-num-input" onchange="updatePerioValue('recession', 'ml', this.value)"></div>
-          </div>
-          <button id="bop-ml" class="perio-check-btn" onclick="toggleBOP('ml')">🩸 BOP</button>
+      <div class="section-lbl" id="lbl-perio-pal-sec">Lingual / Palatino (PS / REC / BOP)</div>
+      <div class="grid-3col">
+        <div class="perio-site-card">
+          <span style="font-size:10px; font-weight:800; color:var(--text-muted);">ML</span>
+          <button class="action-touch-btn" style="min-height:30px; font-size:10.5px;" onclick="cycleDepth('ml')">PS: <b id="lbl-perio-ml">2mm</b></button>
+          <button class="action-touch-btn" style="min-height:26px; font-size:9.5px; background:var(--bg-input);" onclick="cycleRecession('ml')">REC: <b id="lbl-rec-ml">0mm</b></button>
+          <button class="bop-toggle-btn" id="btn-bop-ml" onclick="toggleSiteBOP('ml')">🩸 Sangrado</button>
         </div>
-        <div class="perio-input-card">
-          <div class="perio-site-lbl">L</div>
-          <div class="perio-inputs-row">
-            <div><span class="input-lbl-micro">PS</span><input type="number" id="ps-l" min="1" max="12" value="2" class="perio-num-input" onchange="updatePerioValue('depths', 'l', this.value)"></div>
-            <div><span class="input-lbl-micro">REC</span><input type="number" id="rec-l" min="0" max="9" value="0" class="perio-num-input" onchange="updatePerioValue('recession', 'l', this.value)"></div>
-          </div>
-          <button id="bop-l" class="perio-check-btn" onclick="toggleBOP('l')">🩸 BOP</button>
+        <div class="perio-site-card">
+          <span style="font-size:10px; font-weight:800; color:var(--text-muted);">L/P</span>
+          <button class="action-touch-btn" style="min-height:30px; font-size:10.5px;" onclick="cycleDepth('l')">PS: <b id="lbl-perio-l">2mm</b></button>
+          <button class="action-touch-btn" style="min-height:26px; font-size:9.5px; background:var(--bg-input);" onclick="cycleRecession('l')">REC: <b id="lbl-rec-l">0mm</b></button>
+          <button class="bop-toggle-btn" id="btn-bop-l" onclick="toggleSiteBOP('l')">🩸 Sangrado</button>
         </div>
-        <div class="perio-input-card">
-          <div class="perio-site-lbl">DL</div>
-          <div class="perio-inputs-row">
-            <div><span class="input-lbl-micro">PS</span><input type="number" id="ps-dl" min="1" max="12" value="2" class="perio-num-input" onchange="updatePerioValue('depths', 'dl', this.value)"></div>
-            <div><span class="input-lbl-micro">REC</span><input type="number" id="rec-dl" min="0" max="9" value="0" class="perio-num-input" onchange="updatePerioValue('recession', 'dl', this.value)"></div>
-          </div>
-          <button id="bop-dl" class="perio-check-btn" onclick="toggleBOP('dl')">🩸 BOP</button>
+        <div class="perio-site-card">
+          <span style="font-size:10px; font-weight:800; color:var(--text-muted);">DL</span>
+          <button class="action-touch-btn" style="min-height:30px; font-size:10.5px;" onclick="cycleDepth('dl')">PS: <b id="lbl-perio-dl">2mm</b></button>
+          <button class="action-touch-btn" style="min-height:26px; font-size:9.5px; background:var(--bg-input);" onclick="cycleRecession('dl')">REC: <b id="lbl-rec-dl">0mm</b></button>
+          <button class="bop-toggle-btn" id="btn-bop-dl" onclick="toggleSiteBOP('dl')">🩸 Sangrado</button>
         </div>
       </div>
 
-      <div class="perio-section-title">Movilidad Dental</div>
-      <div class="selector-row">
-        <button class="opt-btn active-mov" id="mov-0" onclick="setMovilidad(0)">G0</button>
-        <button class="opt-btn" id="mov-1" onclick="setMovilidad(1)">G I</button>
-        <button class="opt-btn" id="mov-2" onclick="setMovilidad(2)">G II</button>
-        <button class="opt-btn" id="mov-3" onclick="setMovilidad(3)">G III</button>
-      </div>
-
-      <div class="perio-section-title">Afectación de Furca (Molares)</div>
-      <div class="selector-row">
-        <button class="opt-btn" id="furca-0" onclick="setFurca(0)">F0</button>
-        <button class="opt-btn" id="furca-1" onclick="setFurca(1)">F I</button>
-        <button class="opt-btn" id="furca-2" onclick="setFurca(2)">F II</button>
-        <button class="opt-btn" id="furca-3" onclick="setFurca(3)">F III</button>
+      <div class="section-lbl">Movilidad y Furca</div>
+      <div class="grid-2col">
+        <button class="action-touch-btn" id="btn-mov-toggle" onclick="cycleMovilidad()">Movilidad: <b id="lbl-mov-val">G0</b></button>
+        <button class="action-touch-btn" id="btn-furca-toggle" onclick="cycleFurca()">Furca: <b id="lbl-furca-val">F0</b></button>
       </div>
     </div>
 
-    <!-- Pestaña 4: Prótesis Fija e Incrustaciones -->
+    <!-- 4. Prótesis Fija -->
     <div id="panel-protesis" style="display: none;">
-      <div class="perio-section-title">Incrustaciones Cerámicas</div>
-      <div class="btn-grid" style="margin-bottom: 12px;">
-        <button class="btn-pat" id="btn-inlay" onclick="setRestorationCondition('inlay')">💎 Inlay</button>
-        <button class="btn-pat" id="btn-onlay" onclick="setRestorationCondition('onlay')">💎 Onlay</button>
-        <button class="btn-pat" id="btn-overlay" onclick="setRestorationCondition('overlay')">💎 Overlay</button>
-        <button class="btn-pat" id="btn-carilla" onclick="setRestorationCondition('carilla')">✨ Carilla</button>
+      <div class="section-lbl">Incrustaciones Cerámicas</div>
+      <div class="grid-2col">
+        <button class="action-touch-btn" id="btn-inlay" onclick="setRestorationCondition('inlay')">💎 Inlay</button>
+        <button class="action-touch-btn" id="btn-onlay" onclick="setRestorationCondition('onlay')">💎 Onlay</button>
+        <button class="action-touch-btn" id="btn-overlay" onclick="setRestorationCondition('overlay')">💎 Overlay</button>
+        <button class="action-touch-btn" id="btn-carilla" onclick="setRestorationCondition('carilla')">✨ Carilla</button>
       </div>
-
-      <div class="perio-section-title">Puente Dental 3D (Prótesis Plural)</div>
-      <div class="protesis-card">
-        <div class="bridge-status" id="bridge-helper-lbl">Selecciona una pieza pilar para iniciar el puente.</div>
-        <button class="btn-action-bridge" id="btn-bridge-action" onclick="handleBridgeButton()">🌉 Iniciar Trazado de Puente</button>
-      </div>
-      <div id="bridge-list-container" style="display: flex; flex-direction: column; gap: 6px;"></div>
+      <div class="section-lbl">Puente Dental 3D</div>
+      <button class="action-touch-btn" id="btn-bridge-action" style="width:100%; background:#d97706; color:#fff;" onclick="handleBridgeButton()">🌉 Trazar Puente desde Pieza</button>
     </div>
 
-    <!-- Pestaña 5: Odontopediatría y Prevención -->
+    <!-- 5. Prótesis Removible -->
+    <div id="panel-removible" style="display: none;">
+      <div class="section-lbl">Rehabilitación Removible de Arcada</div>
+      <div class="grid-2col">
+        <button class="action-touch-btn" id="btn-rem-total" onclick="setArchRemovableType('total')">🦷 Total</button>
+        <button class="action-touch-btn" id="btn-rem-esquelt" onclick="setArchRemovableType('esqueletica')">🔩 Esquelética</button>
+        <button class="action-touch-btn" id="btn-rem-flex" onclick="setArchRemovableType('flexible')">🌸 Valplast</button>
+        <button class="action-touch-btn" id="btn-rem-ninguna" onclick="setArchRemovableType(null)">❌ Retirar</button>
+      </div>
+      <button class="action-touch-btn" id="btn-rem-gancho" style="width:100%;" onclick="toggleRemovableRetainer()">🧲 Gancho Cromo-Cobalto</button>
+    </div>
+
+    <!-- 6. Oclusión y ATM -->
+    <div id="panel-occlusion" style="display: none;">
+      <div class="section-lbl">Facetas de Desgaste (Bruxismo)</div>
+      <div class="grid-3col">
+        <button class="action-touch-btn" id="btn-occ-f1" onclick="setFacetCondition(1)">Leve (I)</button>
+        <button class="action-touch-btn" id="btn-occ-f2" onclick="setFacetCondition(2)">Mod (II)</button>
+        <button class="action-touch-btn" id="btn-occ-f3" onclick="setFacetCondition(3)">Sev (III)</button>
+      </div>
+      <button class="action-touch-btn" id="btn-splint-arch" style="width:100%;" onclick="toggleSplintArch()">🛡️ Férula Miorrelajante</button>
+    </div>
+
+    <!-- 7. Traumatología -->
+    <div id="panel-trauma" style="display: none;">
+      <div class="section-lbl">Fracturas Dentales (IADT)</div>
+      <div class="grid-2col">
+        <button class="action-touch-btn" id="btn-trauma-incompleta" onclick="setTraumaCondition('incompleta')">⚡ Coronaria</button>
+        <button class="action-touch-btn" id="btn-trauma-pulpar" onclick="setTraumaCondition('pulpar')">🔴 Con Pulpa</button>
+        <button class="action-touch-btn" id="btn-trauma-radicular" onclick="setTraumaCondition('radicular')">📍 Radicular</button>
+        <button class="action-touch-btn" id="btn-trauma-none" onclick="setTraumaCondition(null)">❌ Normal</button>
+      </div>
+    </div>
+
+    <!-- 8. Malposiciones -->
+    <div id="panel-malposition" style="display: none;">
+      <div class="section-lbl">Anomalías de Posición y Eje</div>
+      <div class="grid-2col">
+        <button class="action-touch-btn" id="btn-mal-diastema" onclick="setMalpositionCondition('diastema')">↔️ Diastema</button>
+        <button class="action-touch-btn" id="btn-mal-giro" onclick="setMalpositionCondition('giro')">🔄 Rotación</button>
+        <button class="action-touch-btn" id="btn-mal-extrusion" onclick="setMalpositionCondition('extrusion')">⬆️ Extrusión</button>
+        <button class="action-touch-btn" id="btn-mal-intrusion" onclick="setMalpositionCondition('intrusion')">⬇️ Intrusión</button>
+      </div>
+      <button class="action-touch-btn" id="btn-mal-inclinacion" style="width:100%;" onclick="setMalpositionCondition('inclinacion')">📐 Inclinación de Eje</button>
+    </div>
+
+    <!-- 9. Color VITA -->
+    <div id="panel-estetica" style="display: none;">
+      <div class="section-lbl">Tono VITA Classical</div>
+      <div class="grid-4col">
+        <button class="action-touch-btn" id="vita-BL1" onclick="setVitaShade('BL1')">BL1</button>
+        <button class="action-touch-btn" id="vita-A1" onclick="setVitaShade('A1')">A1</button>
+        <button class="action-touch-btn" id="vita-A2" onclick="setVitaShade('A2')">A2</button>
+        <button class="action-touch-btn" id="vita-A3" onclick="setVitaShade('A3')">A3</button>
+        <button class="action-touch-btn" id="vita-B1" onclick="setVitaShade('B1')">B1</button>
+        <button class="action-touch-btn" id="vita-B2" onclick="setVitaShade('B2')">B2</button>
+        <button class="action-touch-btn" id="vita-C1" onclick="setVitaShade('C1')">C1</button>
+        <button class="action-touch-btn" id="vita-D2" onclick="setVitaShade('D2')">D2</button>
+      </div>
+      <button class="action-touch-btn" id="btn-bleach-arch" style="width:100%;" onclick="toggleBleachingArch()">✨ Blanqueamiento Arcada</button>
+    </div>
+
+    <!-- 10. Odontopediatría -->
     <div id="panel-pediatria" style="display: none;">
-      <div class="perio-section-title">Prevención y Sellantes</div>
-      <div class="btn-grid" style="margin-bottom: 10px;">
-        <button class="btn-pat" id="btn-ped-sellante" onclick="setPediatricCondition('sellante')">🛡️ Sellante Oclusal</button>
-        <button class="btn-pat" id="btn-ped-fluor" onclick="setPediatricCondition('fluor')">✨ Flúor Focal</button>
+      <div class="section-lbl">Prevención y Terapia Pulpar</div>
+      <div class="grid-2col">
+        <button class="action-touch-btn" id="btn-ped-sellante" onclick="setPediatricCondition('sellante')">🛡️ Sellante</button>
+        <button class="action-touch-btn" id="btn-ped-fluor" onclick="setPediatricCondition('fluor')">✨ Flúor Focal</button>
+        <button class="action-touch-btn" id="btn-ped-pulpotomia" onclick="setPediatricCondition('pulpotomia')">🟠 Pulpotomía</button>
+        <button class="action-touch-btn" id="btn-ped-pulpectomia" onclick="setPediatricCondition('pulpectomia')">🟣 Pulpectomía</button>
       </div>
-
-      <div class="perio-section-title">Terapia Pulpar Pediátrica</div>
-      <div class="btn-grid" style="margin-bottom: 10px;">
-        <button class="btn-pat" id="btn-ped-pulpotomia" onclick="setPediatricCondition('pulpotomia')">🟠 Pulpotomía</button>
-        <button class="btn-pat" id="btn-ped-pulpectomia" onclick="setPediatricCondition('pulpectomia')">🟣 Pulpectomía</button>
-      </div>
-
-      <div class="perio-section-title">Mantenedor de Espacio y Arcada</div>
-      <div class="ortho-card">
-        <div style="font-size: 11px; color: #94a3b8; margin-bottom: 6px;">Mantenedor Fijo (Banda y Asa):</div>
-        <button class="btn-pat" id="btn-ped-mantenedor" style="width: 100%; margin-bottom: 8px;" onclick="setPediatricCondition('mantenedor')">📐 Mantenedor Banda-Asa</button>
-        <button class="btn-full-arch" id="btn-fluor-arch" onclick="applyFluorToArch()">✨ Aplicar Flúor Arcada Completa</button>
+      <div class="grid-2col">
+        <button class="action-touch-btn" id="btn-ped-mantenedor" onclick="setPediatricCondition('mantenedor')">📐 Mantenedor</button>
+        <button class="action-touch-btn" id="btn-fluor-arch-btn" onclick="applyFluorToArch()">✨ Flúor Arcada</button>
       </div>
     </div>
 
-    <!-- Pestaña 6: Ortodoncia -->
+    <!-- 11. Ortodoncia -->
     <div id="panel-ortho" style="display: none;">
-      <div class="perio-section-title">Bracket en Pieza Seleccionada</div>
-      <div class="btn-grid" style="margin-bottom: 10px;">
-        <button class="btn-pat" id="btn-brk-metal" onclick="setOrthoPiece('metal')">🔩 Metálico</button>
-        <button class="btn-pat" id="btn-brk-zafiro" onclick="setOrthoPiece('zafiro')">💎 Estético / Zafiro</button>
-        <button class="btn-pat" id="btn-brk-tubo" onclick="setOrthoPiece('tubo')">📦 Tubo Molar</button>
-        <button class="btn-pat" id="btn-brk-none" onclick="setOrthoPiece(null)">❌ Sin Bracket</button>
+      <div class="section-lbl">Aparatología Fija</div>
+      <div class="grid-2col">
+        <button class="action-touch-btn" id="btn-brk-metal" onclick="setOrthoPiece('metal')">🔩 Brk Metal</button>
+        <button class="action-touch-btn" id="btn-brk-zafiro" onclick="setOrthoPiece('zafiro')">💎 Brk Zafiro</button>
+        <button class="action-touch-btn" id="btn-brk-tubo" onclick="setOrthoPiece('tubo')">📦 Tubo Molar</button>
+        <button class="action-touch-btn" id="btn-brk-none" onclick="setOrthoPiece(null)">❌ Sin Brk</button>
       </div>
+      <div class="section-lbl">Arco Ortodóntico Continuo 3D</div>
+      <div class="grid-3col">
+        <button class="action-touch-btn" id="wire-none" onclick="setWireType('none')">Sin Arco</button>
+        <button class="action-touch-btn" id="wire-niti" onclick="setWireType('niti')">Arco NiTi</button>
+        <button class="action-touch-btn" id="wire-estetico" onclick="setWireType('estetico')">Blanco Est.</button>
+      </div>
+      <button class="action-touch-btn" style="width:100%; margin-top:4px;" onclick="applyOrthoToFullArch('metal')">✨ Equipar Arcada Completa</button>
+    </div>
+  </div>
 
-      <div class="perio-section-title">Arco Ortodóntico Continuo</div>
-      <div class="ortho-card">
-        <div style="font-size: 11px; color: #94a3b8; margin-bottom: 6px;">Tipo de Arco Metálico:</div>
-        <div class="selector-row">
-          <button class="opt-btn" id="wire-none" onclick="setWireType('none')">Ninguno</button>
-          <button class="opt-btn" id="wire-niti" onclick="setWireType('niti')">NiTi (Plata)</button>
-          <button class="opt-btn" id="wire-estetico" onclick="setWireType('estetico')">Blanco Est.</button>
-        </div>
-        <button class="btn-full-arch" onclick="applyOrthoToFullArch('metal')">✨ Equipar Arcada Metálica Completa</button>
-        <button class="btn-full-arch" style="background:#475569;" onclick="applyOrthoToFullArch(null)">🗑️ Retirar Ortodoncia de Arcada</button>
+  <!-- Modal Presupuesto & Plan -->
+  <div id="budget-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h3 style="font-size:16px; font-weight:800; color:var(--text-main);">Plan de Tratamiento y Aranceles</h3>
+        <button onclick="closeBudgetModal()" style="background:none; border:none; font-size:18px; color:var(--text-muted); cursor:pointer;">✕</button>
+      </div>
+      <div style="background:var(--bg-card); padding:12px; border-radius:12px; border:1px solid var(--primary); text-align:center; margin-bottom:14px;">
+        <span style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Total Presupuestado</span>
+        <div id="modal-total-budget" style="font-size:26px; font-weight:800; color:var(--primary); margin-top:4px;">$0 CLP</div>
+      </div>
+      <div id="modal-budget-list" style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:14px;"></div>
+      <div class="modal-btns">
+        <button class="touch-btn" style="background:#16a34a; border-color:#22c55e; color:#fff;" onclick="closeBudgetModal(); openConsentModal('ghl');">🚀 Sincronizar con GHL</button>
+        <button class="touch-btn btn-pdf" onclick="closeBudgetModal(); openConsentModal('pdf');">📄 Descargar Ficha PDF</button>
       </div>
     </div>
+  </div>
 
-    <!-- Pestaña 7: Presupuesto y Enlace GHL -->
-    <div id="panel-budget" style="display: none;">
-      <div class="budget-total-box">
-        <div style="font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase;">Total Plan de Tratamiento</div>
-        <div class="budget-total-val" id="lbl-total-budget">$0 CLP</div>
+  <!-- Modal Alertas Médicas & Anamnesis -->
+  <div id="anamnesis-modal" class="modal-overlay">
+    <div class="modal-card">
+      <h3 style="font-size: 15px; color: #ea580c; margin-bottom: 10px;">⚠️ Alertas Médicas y Antecedentes</h3>
+      <div class="grid-2col">
+        <button class="action-touch-btn" id="alert-penicilina" onclick="toggleMedicalAlert('penicilina')">💊 Penicilina</button>
+        <button class="action-touch-btn" id="alert-latex" onclick="toggleMedicalAlert('latex')">🧤 Látex</button>
+        <button class="action-touch-btn" id="alert-anestesia" onclick="toggleMedicalAlert('anestesia')">💉 Vasoconstrictor</button>
+        <button class="action-touch-btn" id="alert-anticoagulado" onclick="toggleMedicalAlert('anticoagulado')">🩸 Anticoagulado</button>
+        <button class="action-touch-btn" id="alert-hipertension" onclick="toggleMedicalAlert('hipertension')">❤️ Hipertensión</button>
+        <button class="action-touch-btn" id="alert-diabetes" onclick="toggleMedicalAlert('diabetes')">🍬 Diabetes</button>
+        <button class="action-touch-btn" id="alert-embarazo" onclick="toggleMedicalAlert('embarazo')">🤰 Embarazo</button>
+        <button class="action-touch-btn" id="alert-asma" onclick="toggleMedicalAlert('asma')">🫁 Asma</button>
       </div>
-
-      <div class="perio-section-title">Desglose de Procedimientos</div>
-      <div class="budget-list" id="budget-items-list">
-        <div style="font-size:11px; color:#64748b; text-align:center; padding:12px;">Sin procedimientos diagnosticados</div>
+      <input type="text" id="med-other-notes" class="modal-input" placeholder="Otras alergias / medicación..." style="margin-top:8px;">
+      <div class="modal-btns">
+        <button class="touch-btn active" style="background:#ea580c; border-color:#f97316;" onclick="closeAnamnesisModal()">Guardar Alertas</button>
       </div>
+    </div>
+  </div>
 
-      <button class="btn-ghl-sync" onclick="openConsentModal('ghl')">🚀 Validar Consentimiento y Enviar a GHL</button>
-      <button class="btn-pdf-download" onclick="openConsentModal('pdf')">📄 Descargar Informe Clínico PDF</button>
+  <!-- Modal Consentimiento & Firma -->
+  <div id="consent-modal" class="modal-overlay">
+    <div class="modal-card">
+      <h3 style="font-size: 15px; color: var(--primary); margin-bottom: 10px;">Validación de Consentimiento</h3>
+      <div class="grid-2col">
+        <input type="text" id="pdf-patient-name" class="modal-input" placeholder="Nombre Paciente">
+        <input type="text" id="pdf-patient-id" class="modal-input" placeholder="RUT / ID">
+      </div>
+      <input type="text" id="pdf-doctor-name" class="modal-input" value="Dr. Orlando Toledo">
+      <input type="tel" id="pdf-patient-phone" class="modal-input" placeholder="Teléfono paciente (+56 9 1234 5678) — requerido para GHL">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+        <label style="font-size: 11px; color: var(--text-muted); font-weight:700;">Firma Táctil:</label>
+        <button onclick="clearSignature()" style="background:transparent; border:none; color:#f43f5e; font-size:11px; cursor:pointer; font-weight:700;">Limpiar</button>
+      </div>
+      <canvas id="signature-pad" width="430" height="110"></canvas>
+      <div class="modal-btns">
+        <button class="touch-btn" onclick="closeConsentModal()">Cancelar</button>
+        <button class="touch-btn" style="background:#16a34a; border-color:#22c55e; color:#fff;" onclick="submitConsent('ghl')">🚀 GHL</button>
+        <button class="touch-btn btn-pdf" onclick="submitConsent('pdf')">📄 Guardar PDF</button>
+      </div>
     </div>
   </div>
 
@@ -669,89 +699,65 @@
   <canvas id="canvas"></canvas>
 
   <script>
-    // Base para los assets pesados (.glb). Los 4 modelos superan el
-    // límite de 100MB de GitHub y GitHub Pages no sirve Git LFS, así
-    // que NO viven en este repo — se alojan aparte (recomendado:
-    // Cloudflare R2, mismo proveedor que los Tunnels ya en uso) y se
-    // referencian acá por URL absoluta. Los .json de coordenadas son
-    // livianos (<2KB) y sí quedan en el repo, junto a index.html.
-    //
-    // Dejar '.' mientras pruebas en local con Live Server. Cambiar a
-    // la URL real (ej. 'https://assets.orlandotoledo.com') antes de
-    // publicar — ver README.md.
-    const ASSET_BASE_URL = '.';
-
     const CONFIG = {
       adult: {
-        inferior: { glb: `${ASSET_BASE_URL}/arcada_inferior.glb`, json: './dientes_posiciones.json' },
-        superior: { glb: `${ASSET_BASE_URL}/arcada_superior.glb`, json: './dientes_superiores_posiciones.json' }
+        inferior: { glb: './arcada_inferior.glb', json: './dientes_posiciones.json' },
+        superior: { glb: './arcada_superior.glb', json: './dientes_superiores_posiciones.json' }
       },
       temporal: {
-        inferior: { glb: `${ASSET_BASE_URL}/arcada_temporal_inferior.glb`, json: './dientes_temporales_inferiores.json' },
-        superior: { glb: `${ASSET_BASE_URL}/arcada_temporal_superior.glb`, json: './dientes_temporales_superiores.json' }
+        inferior: { glb: './arcada_temporal_inferior.glb', json: './dientes_temporales_inferiores.json' },
+        superior: { glb: './arcada_temporal_superior.glb', json: './dientes_temporales_superiores.json' }
       }
     };
 
-    // Config de sincronización con GHL — ver GHL_SETUP.md para el
-    // valor real de la URL y el secreto una vez desplegado el
-    // servicio odontograma_webhook.py.
-    //
-    // ⚠️ Esto corre en el navegador del paciente: cualquier valor
-    // puesto acá (incluido el "secreto") es visible con Ver código
-    // fuente. No es autenticación real, solo filtra tráfico
-    // accidental — no pongas acá nada más sensible que esto.
-    const ODONTOGRAMA_WEBHOOK_URL = 'https://odontograma.orlandotoledo.com/webhook/odontograma';
-    const ODONTOGRAMA_WEBHOOK_SECRET = '09ec30cb812f54cd467df71c050db38bd91487ee33d29ad5';
-
     const ARANCELES = {
-      caries: 45000,
-      resina: 40000,
-      corona: 280000,
-      endodoncia: 160000,
-      implante: 650000,
-      inlay: 140000,
-      onlay: 160000,
-      overlay: 180000,
-      carilla: 220000,
-      puente_tramo: 190000,
-      bracket_metal: 25000,
-      bracket_zafiro: 45000,
-      arco_orto: 35000,
-      sellante: 22000,
-      fluor_focal: 18000,
-      fluor_arcada: 35000,
-      pulpotomia: 75000,
-      pulpectomia: 95000,
-      mantenedor: 110000,
-      exodoncia: 50000,
-      impactado: 120000,
-      lesion_apicectomia: 90000,
-      perno_munon: 85000
+      caries: 45000, resina: 40000, corona: 280000, endodoncia: 160000, implante: 650000,
+      inlay: 140000, onlay: 160000, overlay: 180000, carilla: 220000, puente_tramo: 190000,
+      protesis_total: 350000, ppr_esqueletica: 320000, ppr_flexible: 290000, gancho_ppr: 35000,
+      resto_radicular: 65000, trauma_incompleta: 55000, trauma_pulpar: 195000, trauma_radicular: 75000,
+      malposicion_correccion: 35000, blanqueamiento_arcada: 140000, plano_miorrelajante: 150000,
+      rehabilitacion_faceta: 45000, bracket_metal: 25000, bracket_zafiro: 45000, arco_orto: 35000,
+      sellante: 22000, fluor_focal: 18000, fluor_arcada: 35000, pulpotomia: 75000, pulpectomia: 95000,
+      mantenedor: 110000, exodoncia: 50000, impactado: 120000, lesion_apicectomia: 90000, perno_munon: 85000
     };
 
+    const VITA_COLORS = {
+      'BL1': 0xffffff, 'A1': 0xfaf5eb, 'A2': 0xf5ebd6, 'A3': 0xedd6b4,
+      'B1': 0xfdfaf2, 'B2': 0xf7eed7, 'C1': 0xede6d8, 'D2': 0xebe0d2
+    };
+
+    const STATE_COLORS = {
+      diagnosticado: 0xdc2626,
+      existente: 0x2563eb,
+      realizado: 0x16a34a
+    };
+
+    let isDarkMode = false;
     let currentMode = 'adult';
     let currentArch = 'inferior';
     let selectedTooth = null;
-    let surfaceDrawMode = 'caries';
-    let activeTab = 'odonto';
+    let currentClinicalState = 'diagnosticado';
+    let activeSpecialty = 'odonto';
     let consentActionType = 'pdf';
 
     let bridgeStartTooth = null;
     const bridges = [];
 
-    const clinicalRecords = {};
-    const perioRecords = {};
-    const pediatricRecords = {
-      inferior: { fluorArch: false },
-      superior: { fluorArch: false }
-    };
-    const orthoRecords = {
-      inferior: { brackets: {}, wire: 'none' },
-      superior: { brackets: {}, wire: 'none' }
+    const medicalAlerts = {
+      penicilina: false, latex: false, anestesia: false, anticoagulado: false,
+      hipertension: false, diabetes: false, embarazo: false, asma: false, otras: ''
     };
 
+    const clinicalRecords = {};
+    const perioRecords = {};
+    const removableRecords = { inferior: { type: null, retainers: [] }, superior: { type: null, retainers: [] } };
+    const occlusionRecords = { inferior: { splint: false, facets: {} }, superior: { splint: false, facets: {} } };
+    const esteticaRecords = { inferior: { bleaching: false, shades: {} }, superior: { bleaching: false, shades: {} } };
+    const pediatricRecords = { inferior: { fluorArch: false }, superior: { fluorArch: false } };
+    const orthoRecords = { inferior: { brackets: {}, wire: 'none' }, superior: { brackets: {}, wire: 'none' } };
+
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x080a0f);
+    scene.background = new THREE.Color(0xc8d3e0);
 
     const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.01, 1000);
     const renderer = new THREE.WebGLRenderer({
@@ -766,91 +772,184 @@
     const controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.08;
+    controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
 
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x1e293b, 1.4));
-    const mainLight = new THREE.DirectionalLight(0xffffff, 1.5);
-    mainLight.position.set(6, 12, 8);
+    const hemiLight = new THREE.HemisphereLight(0xffffff, 0x94a3b8, 1.1);
+    scene.add(hemiLight);
+
+    const mainLight = new THREE.DirectionalLight(0xffffff, 0.95);
+    mainLight.position.set(5, 10, 6);
     scene.add(mainLight);
 
-    const fillLight = new THREE.DirectionalLight(0x94a3b8, 0.9);
-    fillLight.position.set(-6, -8, -6);
-    scene.add(fillLight);
+    const rimLight = new THREE.DirectionalLight(0x64748b, 0.6);
+    rimLight.position.set(-6, -6, -5);
+    scene.add(rimLight);
+
+    const archContainer = new THREE.Group();
+    scene.add(archContainer);
 
     let activeModel = null;
+    let currentLoadToken = 0;
     const meshTargets = [];
+
     const hitBoxes = new THREE.Group();
     const pathologiesGroup = new THREE.Group();
     const perioGroup = new THREE.Group();
     const bridgesGroup = new THREE.Group();
+    const removableGroup = new THREE.Group();
+    const occlusionGroup = new THREE.Group();
+    const traumaGroup = new THREE.Group();
+    const malpositionGroup = new THREE.Group();
+    const esteticaGroup = new THREE.Group();
     const orthoGroup = new THREE.Group();
     const pediatricGroup = new THREE.Group();
     const surgeryGroup = new THREE.Group();
 
-    scene.add(hitBoxes);
-    scene.add(pathologiesGroup);
-    scene.add(perioGroup);
-    scene.add(bridgesGroup);
-    scene.add(orthoGroup);
-    scene.add(pediatricGroup);
-    scene.add(surgeryGroup);
+    scene.add(hitBoxes, pathologiesGroup, perioGroup, bridgesGroup, removableGroup, occlusionGroup, traumaGroup, malpositionGroup, esteticaGroup, orthoGroup, pediatricGroup, surgeryGroup);
 
-    // Sistema de Filtros de Capas
     const layerVisibility = {
-      general: true,
-      surgery: true,
-      perio: true,
-      bridges: true,
-      pediatric: true,
-      ortho: true
+      general: true, surgery: true, perio: true, bridges: true,
+      removible: true, occlusion: true, trauma: true, malposition: true,
+      estetica: true, pediatric: true, ortho: true
     };
 
     window.toggleLayer = function(layerKey) {
       layerVisibility[layerKey] = !layerVisibility[layerKey];
       const active = layerVisibility[layerKey];
-      
-      const btn = document.getElementById(`layer-${layerKey}`);
-      const ind = document.getElementById(`ind-${layerKey}`);
-      if (btn) btn.classList.toggle('active', active);
-      if (ind) ind.innerText = active ? 'ON' : 'OFF';
+      document.getElementById(`layer-${layerKey}`)?.classList.toggle('active', active);
 
       if (layerKey === 'general') pathologiesGroup.visible = active;
       if (layerKey === 'surgery') surgeryGroup.visible = active;
       if (layerKey === 'perio') perioGroup.visible = active;
       if (layerKey === 'bridges') bridgesGroup.visible = active;
+      if (layerKey === 'removible') removableGroup.visible = active;
+      if (layerKey === 'occlusion') occlusionGroup.visible = active;
+      if (layerKey === 'trauma') traumaGroup.visible = active;
+      if (layerKey === 'malposition') malpositionGroup.visible = active;
+      if (layerKey === 'estetica') esteticaGroup.visible = active;
       if (layerKey === 'pediatric') pediatricGroup.visible = active;
       if (layerKey === 'ortho') orthoGroup.visible = active;
     };
 
+    window.toggleAppTheme = function() {
+      isDarkMode = !isDarkMode;
+      document.body.classList.toggle('dark-mode', isDarkMode);
+      document.getElementById('btn-theme-toggle').innerText = isDarkMode ? '🌙' : '☀️';
+      scene.background = new THREE.Color(isDarkMode ? 0x080a0f : 0xc8d3e0);
+      hemiLight.groundColor.setHex(isDarkMode ? 0x1e293b : 0x94a3b8);
+      hemiLight.intensity = isDarkMode ? 1.4 : 1.1;
+    };
+
+    window.toggleBottomSheet = function() {
+      document.getElementById('bottom-sheet').classList.toggle('minimized');
+    };
+
+    window.switchSpecialty = function(specKey) {
+      activeSpecialty = specKey;
+      const specialties = ['odonto', 'cirugia', 'perio', 'protesis', 'removible', 'occlusion', 'trauma', 'malposition', 'estetica', 'pediatria', 'ortho'];
+      const specNames = {
+        odonto: 'Odontología General', cirugia: 'Cirugía Oral', perio: 'Periodoncia',
+        protesis: 'Prótesis Fija', removible: 'Prótesis Removible', occlusion: 'Oclusión y ATM',
+        trauma: 'Trauma y Fracturas', malposition: 'Malposición y Eje', estetica: 'Color VITA',
+        pediatria: 'Odontopediatría', ortho: 'Ortodoncia'
+      };
+
+      specialties.forEach(s => {
+        const btn = document.getElementById(`rail-${s}`);
+        const panel = document.getElementById(`panel-${s}`);
+        if (btn) btn.classList.toggle('active', s === specKey);
+        if (panel) panel.style.display = (s === specKey) ? 'block' : 'none';
+      });
+
+      document.getElementById('lbl-specialty-name').innerText = `(${specNames[specKey]})`;
+      document.getElementById('bottom-sheet').classList.remove('minimized');
+    };
+
+    // Alertas Médicas
+    window.openAnamnesisModal = function() { document.getElementById('anamnesis-modal').style.display = 'flex'; };
+    window.closeAnamnesisModal = function() {
+      medicalAlerts.otras = document.getElementById('med-other-notes').value.trim();
+      document.getElementById('anamnesis-modal').style.display = 'none';
+      updateMedicalAlertBanner();
+    };
+    window.toggleMedicalAlert = function(alertKey) {
+      medicalAlerts[alertKey] = !medicalAlerts[alertKey];
+      document.getElementById(`alert-${alertKey}`)?.classList.toggle('active', medicalAlerts[alertKey]);
+    };
+    function updateMedicalAlertBanner() {
+      const box = document.getElementById('alert-pill-box');
+      box.innerHTML = '';
+      const map = { penicilina:'⚠️ Penicilina', latex:'⚠️ Látex', anestesia:'⚠️ Vasoconstrictor', anticoagulado:'🩸 Anticoagulado', hipertension:'❤️ HTA', diabetes:'🍬 Diabetes', embarazo:'🤰 Embarazo', asma:'🫁 Asma' };
+      for (const [k, v] of Object.entries(medicalAlerts)) {
+        if (v && map[k]) box.innerHTML += `<div class="alert-pill">${map[k]}</div>`;
+      }
+      if (medicalAlerts.otras) box.innerHTML += `<div class="alert-pill" style="background:#ea580c;">⚠️ ${medicalAlerts.otras}</div>`;
+    }
+
+    // Modal Presupuesto
+    window.openBudgetModal = function() {
+      const data = calculateBudget();
+      document.getElementById('modal-total-budget').innerText = `$${data.total.toLocaleString('es-CL')} CLP`;
+      const list = document.getElementById('modal-budget-list');
+      if (data.items.length === 0) {
+        list.innerHTML = '<div style="font-size:12px; color:var(--text-muted); text-align:center; padding:16px;">Sin tratamientos requeridos diagnosticados</div>';
+      } else {
+        list.innerHTML = data.items.map(it => `
+          <div style="background:var(--bg-card); padding:8px 12px; border-radius:8px; display:flex; justify-content:space-between; font-size:11.5px; border:1px solid var(--border-subtle);">
+            <span>${it.item}</span><strong style="color:var(--primary);">$${it.price.toLocaleString('es-CL')}</strong>
+          </div>
+        `).join('');
+      }
+      document.getElementById('budget-modal').style.display = 'flex';
+    };
+    window.closeBudgetModal = function() { document.getElementById('budget-modal').style.display = 'none'; };
+
     let currentPositions = {};
     const loader = new THREE.GLTFLoader();
-
-    // Los 4 .glb se re-exportaron con compresión Draco (mismo detalle
-    // geométrico, ~5-7x más livianos — de 93-130MB a 12-27MB c/u, ver
-    // README.md) para poder subirlos al repo sin chocar con el límite
-    // de 100MB de GitHub. El decoder se sirve desde gstatic (mismo
-    // que recomienda el equipo de Draco), no hace falta alojarlo.
+    // Los .glb del repo están comprimidos con Draco (~5-7x más livianos
+    // para poder subirlos a GitHub sin chocar con el límite de 100MB).
+    // Sin este decoder, GLTFLoader no puede leerlos.
     const dracoLoader = new THREE.DRACOLoader();
     dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
     loader.setDRACOLoader(dracoLoader);
 
-    async function loadArchData() {
-      document.getElementById('status').innerText = 'Cargando datos anatómicos...';
-      const setting = CONFIG[currentMode][currentArch];
+    function getAnatomicalOrder() {
+      return (currentMode === 'temporal')
+        ? (currentArch === 'superior' ? [55,54,53,52,51,61,62,63,64,65] : [85,84,83,82,81,71,72,73,74,75])
+        : (currentArch === 'superior' ? [18,17,16,15,14,13,12,11,21,22,23,24,25,26,27,28] : [48,47,46,45,44,43,42,41,31,32,33,34,35,36,37,38]);
+    }
 
-      if (activeModel) scene.remove(activeModel);
+    async function loadArchData() {
+      document.getElementById('status').innerText = 'Cargando arcada 3D...';
+      const setting = CONFIG[currentMode][currentArch];
+      const loadToken = ++currentLoadToken;
+
+      while (archContainer.children.length > 0) {
+        const obj = archContainer.children[0];
+        obj.traverse((child) => {
+          if (child.isMesh) {
+            if (child.geometry) child.geometry.dispose();
+            if (child.material) {
+              if (Array.isArray(child.material)) child.material.forEach(m => m.dispose());
+              else child.material.dispose();
+            }
+          }
+        });
+        archContainer.remove(obj);
+      }
       meshTargets.length = 0;
+      activeModel = null;
 
       try {
         const res = await fetch(setting.json);
         currentPositions = await res.json();
-      } catch (err) {
-        console.warn('Error coordenadas:', err);
-        currentPositions = {};
-      }
+      } catch (err) { currentPositions = {}; }
 
       loader.load(setting.glb, (gltf) => {
+        if (loadToken !== currentLoadToken) return;
+
         activeModel = gltf.scene;
-        scene.add(activeModel);
+        archContainer.add(activeModel);
         activeModel.updateMatrixWorld(true);
 
         const box = new THREE.Box3().setFromObject(activeModel);
@@ -859,34 +958,29 @@
         activeModel.position.sub(center);
 
         const maxDim = Math.max(size.x, size.y, size.z);
-        if (maxDim > 0 && (maxDim < 0.5 || maxDim > 5.0)) {
-          activeModel.scale.setScalar(2.0 / maxDim);
-        }
+        if (maxDim > 0 && (maxDim < 0.5 || maxDim > 5.0)) activeModel.scale.setScalar(2.0 / maxDim);
         activeModel.updateMatrixWorld(true);
 
         activeModel.traverse(c => {
           if (c.isMesh) {
             meshTargets.push(c);
-            if (c.material) c.material.side = THREE.DoubleSide;
+            if (c.material) {
+              c.material.side = THREE.DoubleSide;
+              if (c.material.isMeshStandardMaterial || c.material.isMeshPhysicalMaterial) {
+                c.material.roughness = 0.38;
+                c.material.metalness = 0.0;
+              }
+            }
           }
         });
 
-        if (currentArch === 'inferior') {
-          camera.position.set(0, 3.2, 1.4);
-        } else {
-          camera.position.set(0, -3.2, 1.4);
-        }
+        camera.position.set(0, currentArch === 'inferior' ? 3.2 : -3.2, 1.4);
         camera.lookAt(0, 0, 0);
         controls.target.set(0, 0, 0);
         controls.update();
 
         buildGlobalHitBoxes();
-        renderClinicalPathologies();
-        renderPerioMarkers();
-        renderBridges();
-        renderOrtho();
-        renderPediatric();
-        renderSurgery();
+        renderAllLayers();
         calculateBudget();
         document.getElementById('status').innerText = `Listo: ${currentMode.toUpperCase()} - ${currentArch.toUpperCase()}`;
       });
@@ -894,431 +988,156 @@
 
     function getToothWorldPos(pos) {
       if (!pos || !activeModel) return new THREE.Vector3(0,0,0);
-      const v = new THREE.Vector3(pos.x, pos.y, pos.z);
-      return activeModel.localToWorld(v.clone());
+      return activeModel.localToWorld(new THREE.Vector3(pos.x, pos.y, pos.z));
     }
 
     function buildGlobalHitBoxes() {
       while(hitBoxes.children.length > 0) hitBoxes.remove(hitBoxes.children[0]);
-
       for (const [fdi, pos] of Object.entries(currentPositions)) {
-        const wPos = getToothWorldPos(pos);
-        const hitGeo = new THREE.SphereGeometry(0.12, 8, 8);
-        const hitMat = new THREE.MeshBasicMaterial({ visible: false });
-        const hit = new THREE.Mesh(hitGeo, hitMat);
-        hit.position.copy(wPos);
+        const hit = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 8), new THREE.MeshBasicMaterial({ visible: false }));
+        hit.position.copy(getToothWorldPos(pos));
         hit.userData = { fdi: parseInt(fdi) };
         hitBoxes.add(hit);
       }
     }
 
-    function renderClinicalPathologies() {
-      while(pathologiesGroup.children.length > 0) {
-        pathologiesGroup.remove(pathologiesGroup.children[0]);
-      }
+    window.setClinicalState = function(st) {
+      currentClinicalState = st;
+      ['diagnosticado', 'existente', 'realizado'].forEach(s => {
+        document.getElementById(`traffic-${s}`)?.classList.toggle(`active-${s}`, s === st);
+      });
+    };
 
+    function renderAllLayers() {
+      renderClinicalPathologies();
+      renderSurgery();
+      renderPerioMarkers();
+      renderBridges();
+      renderRemovable();
+      renderOcclusion();
+      renderTrauma();
+      renderMalposition();
+      renderEstetica();
+      renderOrtho();
+      renderPediatric();
+    }
+
+    // Sistema Limpio de Marcas por Caras (Alto Contraste Clínico)
+    function renderClinicalPathologies() {
+      while(pathologiesGroup.children.length > 0) pathologiesGroup.remove(pathologiesGroup.children[0]);
       for (const [fdi, pos] of Object.entries(currentPositions)) {
         const rec = clinicalRecords[fdi];
         const p = getToothWorldPos(pos);
-        const isUpper = currentArch === 'superior';
-        const yDir = isUpper ? -1 : 1;
+        const yDir = currentArch === 'superior' ? -1 : 1;
 
         if (rec) {
+          const itemColor = STATE_COLORS[rec.status || 'diagnosticado'];
+
           if (rec.general === 'ausente') {
             const crossMat = new THREE.MeshBasicMaterial({ color: 0xef4444, depthTest: false });
-
-            const bar1Geo = new THREE.CylinderGeometry(0.016, 0.016, 0.18, 12);
-            const bar1 = new THREE.Mesh(bar1Geo, crossMat);
+            const bar1 = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.18, 12), crossMat);
             bar1.position.set(p.x, p.y + (yDir * 0.04), p.z);
-            bar1.rotation.x = Math.PI / 2;
-            bar1.rotation.z = Math.PI / 4;
-            bar1.renderOrder = 1000;
-
-            const bar2Geo = new THREE.CylinderGeometry(0.016, 0.016, 0.18, 12);
-            const bar2 = new THREE.Mesh(bar2Geo, crossMat);
+            bar1.rotation.set(Math.PI/2, 0, Math.PI/4);
+            const bar2 = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.18, 12), crossMat);
             bar2.position.set(p.x, p.y + (yDir * 0.04), p.z);
-            bar2.rotation.x = Math.PI / 2;
-            bar2.rotation.z = -Math.PI / 4;
-            bar2.renderOrder = 1000;
-
-            pathologiesGroup.add(bar1);
-            pathologiesGroup.add(bar2);
+            bar2.rotation.set(Math.PI/2, 0, -Math.PI/4);
+            pathologiesGroup.add(bar1, bar2);
             continue;
           }
-
           if (rec.general === 'corona') {
-            const cGeo = new THREE.SphereGeometry(0.07, 16, 16);
-            const cMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, depthTest: false });
-            const crown = new THREE.Mesh(cGeo, cMat);
+            const crown = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), new THREE.MeshBasicMaterial({ color: itemColor, depthTest: false }));
             crown.position.copy(p);
-            crown.renderOrder = 998;
             pathologiesGroup.add(crown);
           }
-
           if (rec.general === 'implante') {
-            const impGeo = new THREE.CylinderGeometry(0.03, 0.02, 0.15, 12);
-            const impMat = new THREE.MeshBasicMaterial({ color: 0x94a3b8, depthTest: false });
-            const imp = new THREE.Mesh(impGeo, impMat);
+            const imp = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.02, 0.15, 12), new THREE.MeshBasicMaterial({ color: rec.status === 'realizado' ? 0x16a34a : 0x64748b, depthTest: false }));
             imp.position.set(p.x, p.y - (yDir * 0.05), p.z);
-            imp.renderOrder = 998;
             pathologiesGroup.add(imp);
           }
-
           if (rec.general === 'endodoncia') {
-            const endoMat = new THREE.MeshBasicMaterial({ color: 0xec4899, depthTest: false });
-            const canalGeo = new THREE.CylinderGeometry(0.012, 0.008, 0.16, 10);
-            const canal = new THREE.Mesh(canalGeo, endoMat);
+            const canal = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.008, 0.16, 10), new THREE.MeshBasicMaterial({ color: itemColor, depthTest: false }));
             canal.position.set(p.x, p.y - (yDir * 0.02), p.z);
-            canal.renderOrder = 1000;
             pathologiesGroup.add(canal);
-
-            const pinGeo = new THREE.SphereGeometry(0.025, 12, 12);
-            const pin = new THREE.Mesh(pinGeo, endoMat);
-            pin.position.copy(p).add(new THREE.Vector3(0, yDir * 0.04, 0));
-            pin.renderOrder = 1000;
-            pathologiesGroup.add(pin);
           }
-
           if (rec.restoration) {
-            const restMat = new THREE.MeshBasicMaterial({
-              color: (rec.restoration === 'carilla') ? 0x38bdf8 : 0x06b6d4,
-              depthTest: false
-            });
-
-            if (rec.restoration === 'inlay') {
-              const inGeo = new THREE.CylinderGeometry(0.025, 0.02, 0.015, 12);
-              const inMesh = new THREE.Mesh(inGeo, restMat);
-              inMesh.position.set(p.x, p.y + (yDir * 0.025), p.z);
-              inMesh.renderOrder = 999;
-              pathologiesGroup.add(inMesh);
-            } else if (rec.restoration === 'onlay') {
-              const onGeo = new THREE.CylinderGeometry(0.04, 0.035, 0.02, 12);
-              const onMesh = new THREE.Mesh(onGeo, restMat);
-              onMesh.position.set(p.x, p.y + (yDir * 0.03), p.z);
-              onMesh.renderOrder = 999;
-              pathologiesGroup.add(onMesh);
-            } else if (rec.restoration === 'overlay') {
-              const overGeo = new THREE.SphereGeometry(0.055, 14, 14);
-              const overMesh = new THREE.Mesh(overGeo, restMat);
-              overMesh.position.set(p.x, p.y + (yDir * 0.02), p.z);
-              overMesh.renderOrder = 999;
-              pathologiesGroup.add(overMesh);
-            } else if (rec.restoration === 'carilla') {
-              const carGeo = new THREE.BoxGeometry(0.06, 0.07, 0.012);
-              const carMesh = new THREE.Mesh(carGeo, restMat);
-              carMesh.position.set(p.x, p.y, p.z + 0.05);
-              carMesh.renderOrder = 999;
-              pathologiesGroup.add(carMesh);
-            }
+            const rest = new THREE.Mesh(new THREE.SphereGeometry(0.055, 14, 14), new THREE.MeshBasicMaterial({ color: itemColor, depthTest: false }));
+            rest.position.set(p.x, p.y + (yDir * 0.02), p.z);
+            pathologiesGroup.add(rest);
           }
-
           if (rec.faces) {
             const isRight = parseInt(fdi) < 20 || (parseInt(fdi) >= 40 && parseInt(fdi) < 60) || parseInt(fdi) >= 80;
             const offsets = {
               'O': new THREE.Vector3(0, yDir * 0.025, 0),
-              'V': new THREE.Vector3(0, 0, 0.055),
-              'L': new THREE.Vector3(0, 0, -0.055),
+              'V': new THREE.Vector3(0,0,0.055),
+              'L': new THREE.Vector3(0,0,-0.055),
               'M': new THREE.Vector3(isRight ? -0.055 : 0.055, 0, 0),
               'D': new THREE.Vector3(isRight ? 0.055 : -0.055, 0, 0)
             };
-
-            for (const [face, type] of Object.entries(rec.faces)) {
-              const isCaries = (type === 'caries');
-              const fGeo = new THREE.SphereGeometry(0.03, 12, 12);
-              const fMat = new THREE.MeshBasicMaterial({
-                color: isCaries ? 0xdc2626 : 0x2563eb,
-                depthTest: false
-              });
-
-              const patch = new THREE.Mesh(fGeo, fMat);
-              const faceOffset = offsets[face] || new THREE.Vector3(0,0,0);
-              patch.position.copy(p).add(faceOffset);
-              patch.renderOrder = 999;
+            for (const [face, state] of Object.entries(rec.faces)) {
+              const patch = new THREE.Mesh(new THREE.SphereGeometry(0.03, 12, 12), new THREE.MeshBasicMaterial({ color: STATE_COLORS[state] || 0xdc2626, depthTest: false }));
+              patch.position.copy(p).add(offsets[face] || new THREE.Vector3());
               pathologiesGroup.add(patch);
             }
           }
         }
-
         if (selectedTooth === parseInt(fdi)) {
-          const ringGeo = new THREE.RingGeometry(0.055, 0.075, 32);
-          const ringMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, side: THREE.DoubleSide, depthTest: false });
-          const ring = new THREE.Mesh(ringGeo, ringMat);
+          const ring = new THREE.Mesh(new THREE.RingGeometry(0.055, 0.075, 32), new THREE.MeshBasicMaterial({ color: 0x0284c7, side: THREE.DoubleSide, depthTest: false }));
           ring.position.set(p.x, p.y + (yDir * 0.035), p.z);
           ring.rotation.x = Math.PI / 2;
-          ring.renderOrder = 1001;
           pathologiesGroup.add(ring);
         }
       }
     }
 
     function renderSurgery() {
-      while(surgeryGroup.children.length > 0) {
-        surgeryGroup.remove(surgeryGroup.children[0]);
-      }
-
-      const isUpper = currentArch === 'superior';
-      const yDir = isUpper ? -1 : 1;
-
+      while(surgeryGroup.children.length > 0) surgeryGroup.remove(surgeryGroup.children[0]);
+      const yDir = currentArch === 'superior' ? -1 : 1;
       for (const [fdi, pos] of Object.entries(currentPositions)) {
         const rec = clinicalRecords[fdi];
         if (!rec || !rec.surgery) continue;
-
         const p = getToothWorldPos(pos);
-        const surg = rec.surgery;
+        const color = STATE_COLORS[rec.status || 'diagnosticado'];
 
-        if (surg === 'exodoncia') {
-          const arrMat = new THREE.MeshBasicMaterial({ color: 0xef4444, depthTest: false });
-          const arrowCone = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.07, 8), arrMat);
-          arrowCone.position.set(p.x, p.y + (yDir * 0.08), p.z);
-          if (isUpper) arrowCone.rotation.x = Math.PI;
-          arrowCone.renderOrder = 1010;
-
-          const arrowStem = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.06, 8), arrMat);
-          arrowStem.position.set(p.x, p.y + (yDir * 0.12), p.z);
-          arrowStem.renderOrder = 1010;
-
-          surgeryGroup.add(arrowCone);
-          surgeryGroup.add(arrowStem);
+        if (rec.surgery === 'exodoncia') {
+          const cone = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.07, 8), new THREE.MeshBasicMaterial({ color, depthTest: false }));
+          cone.position.set(p.x, p.y + (yDir * 0.08), p.z);
+          if (currentArch === 'superior') cone.rotation.x = Math.PI;
+          surgeryGroup.add(cone);
         }
-
-        if (surg === 'impactado') {
-          const boxMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, wireframe: true, depthTest: false });
-          const impBox = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.16, 0.13), boxMat);
-          impBox.position.set(p.x, p.y - (yDir * 0.14), p.z + 0.02);
-          impBox.rotation.z = Math.PI / 6;
-          impBox.renderOrder = 1010;
-          surgeryGroup.add(impBox);
+        if (rec.surgery === 'resto') {
+          const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.042, 0.032, 0.05, 12), new THREE.MeshStandardMaterial({ color: 0x991b1b, depthTest: false }));
+          cap.position.set(p.x, p.y - (yDir * 0.02), p.z);
+          surgeryGroup.add(cap);
         }
-
-        if (surg === 'lesion') {
-          const lesionMat = new THREE.MeshBasicMaterial({ color: 0xdc2626, depthTest: false });
-          const lesionMesh = new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 12), lesionMat);
-          lesionMesh.position.set(p.x, p.y - (yDir * 0.30), p.z + 0.04);
-          lesionMesh.renderOrder = 1010;
-          surgeryGroup.add(lesionMesh);
-
-          const haloMat = new THREE.MeshBasicMaterial({ color: 0xf87171, transparent: true, opacity: 0.45, depthTest: false, depthWrite: false });
-          const haloMesh = new THREE.Mesh(new THREE.SphereGeometry(0.075, 12, 12), haloMat);
-          haloMesh.position.copy(lesionMesh.position);
-          haloMesh.renderOrder = 1009;
-          surgeryGroup.add(haloMesh);
+        if (rec.surgery === 'impactado') {
+          const box = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.16, 0.13), new THREE.MeshBasicMaterial({ color, wireframe: true, depthTest: false }));
+          box.position.set(p.x, p.y - (yDir * 0.14), p.z + 0.02);
+          surgeryGroup.add(box);
         }
-
-        if (surg === 'perno') {
-          const postMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.85, roughness: 0.25, depthTest: false });
-          const postMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.008, 0.14, 10), postMat);
-          postMesh.position.set(p.x, p.y + (yDir * 0.015), p.z);
-          postMesh.renderOrder = 1010;
-          surgeryGroup.add(postMesh);
+        if (rec.surgery === 'lesion') {
+          const lesion = new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 12), new THREE.MeshBasicMaterial({ color, depthTest: false }));
+          lesion.position.set(p.x, p.y - (yDir * 0.30), p.z + 0.04);
+          surgeryGroup.add(lesion);
         }
-      }
-    }
-
-    function renderBridges() {
-      while(bridgesGroup.children.length > 0) {
-        bridgesGroup.remove(bridgesGroup.children[0]);
-      }
-
-      const isUpper = currentArch === 'superior';
-      const yDir = isUpper ? -1 : 1;
-
-      bridges.forEach(br => {
-        if (br.arch !== currentArch) return;
-
-        const pos1 = currentPositions[br.start] || currentPositions[String(br.start)];
-        const pos2 = currentPositions[br.end] || currentPositions[String(br.end)];
-
-        if (pos1 && pos2) {
-          const p1 = getToothWorldPos(pos1).add(new THREE.Vector3(0, yDir * 0.03, 0));
-          const p2 = getToothWorldPos(pos2).add(new THREE.Vector3(0, yDir * 0.03, 0));
-
-          const distance = p1.distanceTo(p2);
-          const cylinderGeo = new THREE.CylinderGeometry(0.024, 0.024, distance, 16);
-          const bridgeMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, depthTest: false });
-          const bridgeMesh = new THREE.Mesh(cylinderGeo, bridgeMat);
-
-          const midPoint = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
-          bridgeMesh.position.copy(midPoint);
-
-          const dir = new THREE.Vector3().subVectors(p2, p1).normalize();
-          const axis = new THREE.Vector3(0, 1, 0);
-          const quaternion = new THREE.Quaternion().setFromUnitVectors(axis, dir);
-          bridgeMesh.setRotationFromQuaternion(quaternion);
-          bridgeMesh.renderOrder = 997;
-
-          bridgesGroup.add(bridgeMesh);
+        if (rec.surgery === 'perno') {
+          const post = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.008, 0.14, 10), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.85, depthTest: false }));
+          post.position.set(p.x, p.y + (yDir * 0.015), p.z);
+          surgeryGroup.add(post);
         }
-      });
-    }
-
-    function renderPediatric() {
-      while(pediatricGroup.children.length > 0) {
-        pediatricGroup.remove(pediatricGroup.children[0]);
-      }
-
-      const isUpper = currentArch === 'superior';
-      const yDir = isUpper ? -1 : 1;
-      const archFluorActive = pediatricRecords[currentArch] && pediatricRecords[currentArch].fluorArch;
-
-      for (const [fdi, pos] of Object.entries(currentPositions)) {
-        const p = getToothWorldPos(pos);
-        const rec = clinicalRecords[fdi];
-        const isFocalFluor = (rec && rec.pediatric === 'fluor');
-
-        if (archFluorActive || isFocalFluor) {
-          const fluorMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: isFocalFluor ? 0.55 : 0.4, depthTest: false, depthWrite: false });
-          const fluorSphere = new THREE.Mesh(new THREE.SphereGeometry(0.078, 16, 16), fluorMat);
-          fluorSphere.position.copy(p);
-          fluorSphere.renderOrder = 1006;
-          pediatricGroup.add(fluorSphere);
-
-          const ringMat = new THREE.MeshBasicMaterial({ color: isFocalFluor ? 0x38bdf8 : 0x0284c7, side: THREE.DoubleSide, depthTest: false });
-          const ringMesh = new THREE.Mesh(new THREE.RingGeometry(0.065, 0.08, 16), ringMat);
-          ringMesh.position.set(p.x, p.y + (yDir * 0.02), p.z);
-          ringMesh.rotation.x = Math.PI / 2;
-          ringMesh.renderOrder = 1007;
-          pediatricGroup.add(ringMesh);
-        }
-
-        if (!rec || !rec.pediatric) continue;
-        const ped = rec.pediatric;
-
-        if (ped === 'sellante') {
-          const sMat = new THREE.MeshBasicMaterial({ color: 0x10b981, depthTest: false });
-          const b1 = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.008, 0.012), sMat);
-          b1.position.set(p.x, p.y + (yDir * 0.035), p.z);
-          b1.renderOrder = 1008;
-          const b2 = new THREE.Mesh(new THREE.BoxGeometry(0.012, 0.008, 0.045), sMat);
-          b2.position.set(p.x, p.y + (yDir * 0.035), p.z);
-          b2.renderOrder = 1008;
-          pediatricGroup.add(b1);
-          pediatricGroup.add(b2);
-        }
-
-        if (ped === 'pulpotomia') {
-          const pulpoMat = new THREE.MeshBasicMaterial({ color: 0xf97316, depthTest: false });
-          const pulpoGeo = new THREE.SphereGeometry(0.038, 12, 12);
-          const pulpoMesh = new THREE.Mesh(pulpoGeo, pulpoMat);
-          pulpoMesh.position.set(p.x, p.y + (yDir * 0.01), p.z);
-          pulpoMesh.renderOrder = 1008;
-          pediatricGroup.add(pulpoMesh);
-        }
-
-        if (ped === 'pulpectomia') {
-          const pulpecMat = new THREE.MeshBasicMaterial({ color: 0xa855f7, depthTest: false });
-          const canalGeo = new THREE.CylinderGeometry(0.014, 0.007, 0.15, 8);
-          const canalMesh = new THREE.Mesh(canalGeo, pulpecMat);
-          canalMesh.position.set(p.x, p.y - (yDir * 0.02), p.z);
-          canalMesh.renderOrder = 1008;
-          pediatricGroup.add(canalMesh);
-        }
-
-        if (ped === 'mantenedor') {
-          const bandMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, roughness: 0.2, depthTest: false });
-          const band = new THREE.Mesh(new THREE.CylinderGeometry(0.068, 0.068, 0.04, 16, 1, true), bandMat);
-          band.position.copy(p);
-          band.renderOrder = 1008;
-          pediatricGroup.add(band);
-
-          const isRight = parseInt(fdi) < 20 || (parseInt(fdi) >= 40 && parseInt(fdi) < 60) || parseInt(fdi) >= 80;
-          const loopDir = isRight ? 0.07 : -0.07;
-          const loopGeo = new THREE.TorusGeometry(0.035, 0.006, 8, 16, Math.PI);
-          const loopMesh = new THREE.Mesh(loopGeo, bandMat);
-          loopMesh.position.set(p.x + loopDir, p.y, p.z);
-          loopMesh.rotation.x = Math.PI / 2;
-          loopMesh.renderOrder = 1009;
-          pediatricGroup.add(loopMesh);
-        }
-      }
-    }
-
-    function renderOrtho() {
-      while(orthoGroup.children.length > 0) {
-        orthoGroup.remove(orthoGroup.children[0]);
-      }
-
-      const currentOrtho = orthoRecords[currentArch];
-      const isUpper = currentArch === 'superior';
-      const yDir = isUpper ? -1 : 1;
-
-      const anatomicalOrder = isUpper 
-        ? [18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28, 55, 54, 53, 52, 51, 61, 62, 63, 64, 65]
-        : [48, 47, 46, 45, 44, 43, 42, 41, 31, 32, 33, 34, 35, 36, 37, 38, 85, 84, 83, 82, 81, 71, 72, 73, 74, 75];
-
-      const activeBracketPoints = [];
-
-      anatomicalOrder.forEach(fdi => {
-        const bType = currentOrtho.brackets[fdi];
-        const pos = currentPositions[fdi] || currentPositions[String(fdi)];
-        if (!pos) return;
-
-        const p = getToothWorldPos(pos);
-        const vOffset = new THREE.Vector3(0, -yDir * 0.005, 0.06);
-        const bracketPos = p.clone().add(vOffset);
-
-        if (bType) {
-          activeBracketPoints.push({ fdi, pos: bracketPos });
-
-          let bMat;
-          if (bType === 'metal') {
-            bMat = new THREE.MeshStandardMaterial({ color: 0xd1d5db, metalness: 0.9, roughness: 0.2, depthTest: false });
-          } else if (bType === 'zafiro') {
-            bMat = new THREE.MeshStandardMaterial({ color: 0xe0f2fe, roughness: 0.1, depthTest: false });
-          } else {
-            bMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.95, roughness: 0.3, depthTest: false });
-          }
-
-          const bGeo = (bType === 'tubo') ? new THREE.BoxGeometry(0.045, 0.03, 0.025) : new THREE.BoxGeometry(0.032, 0.032, 0.02);
-          const bMesh = new THREE.Mesh(bGeo, bMat);
-          bMesh.position.copy(bracketPos);
-          bMesh.renderOrder = 1002;
-          orthoGroup.add(bMesh);
-
-          const slotGeo = new THREE.BoxGeometry(0.034, 0.006, 0.006);
-          const slotMat = new THREE.MeshBasicMaterial({ color: 0x0f172a, depthTest: false });
-          const slotMesh = new THREE.Mesh(slotGeo, slotMat);
-          slotMesh.position.copy(bracketPos).add(new THREE.Vector3(0, 0, 0.009));
-          slotMesh.renderOrder = 1003;
-          orthoGroup.add(slotMesh);
-        }
-      });
-
-      if (currentOrtho.wire && currentOrtho.wire !== 'none' && activeBracketPoints.length >= 2) {
-        const curvePoints = activeBracketPoints.map(bp => bp.pos.clone().add(new THREE.Vector3(0, 0, 0.008)));
-        const curve = new THREE.CatmullRomCurve3(curvePoints, false, 'catmullrom', 0.15);
-        const tubeGeo = new THREE.TubeGeometry(curve, 64, 0.006, 8, false);
-
-        const wireColor = (currentOrtho.wire === 'estetico') ? 0xf8fafc : 0xcbd5e1;
-        const wireMat = new THREE.MeshStandardMaterial({
-          color: wireColor,
-          metalness: (currentOrtho.wire === 'estetico') ? 0.1 : 0.95,
-          roughness: 0.2,
-          depthTest: false
-        });
-
-        const wireMesh = new THREE.Mesh(tubeGeo, wireMat);
-        wireMesh.renderOrder = 1004;
-        orthoGroup.add(wireMesh);
       }
     }
 
     function renderPerioMarkers() {
-      while(perioGroup.children.length > 0) {
-        perioGroup.remove(perioGroup.children[0]);
-      }
-
-      if (activeTab !== 'perio') return;
+      while(perioGroup.children.length > 0) perioGroup.remove(perioGroup.children[0]);
+      const yDir = currentArch === 'superior' ? -1 : 1;
 
       for (const [fdi, pos] of Object.entries(currentPositions)) {
-        const pRecord = perioRecords[fdi];
-        if (!pRecord) continue;
-
+        const pRec = perioRecords[fdi];
+        if (!pRec) continue;
         const p = getToothWorldPos(pos);
-        const isUpper = currentArch === 'superior';
-        const yDir = isUpper ? -1 : 1;
         const isRight = parseInt(fdi) < 20 || (parseInt(fdi) >= 40 && parseInt(fdi) < 60) || parseInt(fdi) >= 80;
 
-        const siteOffsets = {
+        const offsets = {
           'mv': new THREE.Vector3(isRight ? -0.045 : 0.045, -yDir * 0.015, 0.055),
           'v':  new THREE.Vector3(0, -yDir * 0.015, 0.06),
           'dv': new THREE.Vector3(isRight ? 0.045 : -0.045, -yDir * 0.015, 0.055),
@@ -1327,77 +1146,245 @@
           'dl': new THREE.Vector3(isRight ? 0.045 : -0.045, -yDir * 0.015, -0.055)
         };
 
-        for (const [site, depthVal] of Object.entries(pRecord.depths || {})) {
-          const depth = parseInt(depthVal) || 2;
-          const rec = parseInt(pRecord.recession?.[site]) || 0;
-          const off = siteOffsets[site] || new THREE.Vector3();
-
-          const recOffset = yDir * (-rec * 0.01);
+        for (const [site, depth] of Object.entries(pRec.depths || {})) {
+          const off = offsets[site];
+          if (!off) continue;
+          const rec = parseInt(pRec.recession?.[site]) || 0;
           const basePos = p.clone().add(off);
-          basePos.y += recOffset;
+          basePos.y += yDir * (-rec * 0.01);
+          const totalLen = Math.max(0.04, (parseInt(depth) || 2) * 0.014);
 
-          const totalLength = Math.max(0.04, depth * 0.014);
+          let pColor = 0x22c55e;
+          if (depth >= 4 && depth <= 5) pColor = 0xf97316;
+          if (depth >= 6) pColor = 0xef4444;
 
-          let probeColor = 0x22c55e;
-          if (depth >= 4 && depth <= 5) probeColor = 0xf97316;
-          if (depth >= 6) probeColor = 0xef4444;
-
-          const probeGeo = new THREE.CylinderGeometry(0.007, 0.007, totalLength, 8);
-          const probeMat = new THREE.MeshBasicMaterial({ color: probeColor, depthTest: false });
-          const probe = new THREE.Mesh(probeGeo, probeMat);
-
-          probe.position.set(basePos.x, basePos.y + (yDir * (totalLength / 2)), basePos.z);
+          const probe = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, totalLen, 8), new THREE.MeshBasicMaterial({ color: pColor, depthTest: false }));
+          probe.position.set(basePos.x, basePos.y + (yDir * (totalLen / 2)), basePos.z);
           probe.renderOrder = 1000;
           perioGroup.add(probe);
 
-          const tipGeo = new THREE.SphereGeometry(0.009, 8, 8);
-          const tipMat = new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false });
-          const tip = new THREE.Mesh(tipGeo, tipMat);
-          tip.position.set(basePos.x, basePos.y + (yDir * totalLength), basePos.z);
+          const tip = new THREE.Mesh(new THREE.SphereGeometry(0.009, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff, depthTest: false }));
+          tip.position.set(basePos.x, basePos.y + (yDir * totalLen), basePos.z);
           tip.renderOrder = 1001;
           perioGroup.add(tip);
 
           if (rec > 0) {
-            const recGeo = new THREE.CylinderGeometry(0.012, 0.012, 0.006, 8);
-            const recMat = new THREE.MeshBasicMaterial({ color: 0xf97316, depthTest: false });
-            const recMesh = new THREE.Mesh(recGeo, recMat);
+            const recMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.006, 8), new THREE.MeshBasicMaterial({ color: 0xf97316, depthTest: false }));
             recMesh.position.set(basePos.x, basePos.y, basePos.z);
             recMesh.renderOrder = 1002;
             perioGroup.add(recMesh);
           }
         }
 
-        for (const [site, hasBop] of Object.entries(pRecord.bop || {})) {
+        for (const [site, hasBop] of Object.entries(pRec.bop || {})) {
           if (hasBop) {
-            const off = siteOffsets[site] || new THREE.Vector3();
-            const dropGeo = new THREE.SphereGeometry(0.022, 12, 12);
-            const dropMat = new THREE.MeshBasicMaterial({ color: 0xdc2626, depthTest: false });
-            const drop = new THREE.Mesh(dropGeo, dropMat);
-            drop.position.copy(p).add(off).add(new THREE.Vector3(0, yDir * 0.05, 0));
-            drop.renderOrder = 1003;
+            const off = offsets[site];
+            if (!off) continue;
+            const drop = new THREE.Mesh(new THREE.SphereGeometry(0.024, 12, 12), new THREE.MeshBasicMaterial({ color: 0xdc2626, depthTest: false }));
+            drop.position.copy(p).add(off).add(new THREE.Vector3(0, yDir * 0.045, 0));
+            drop.renderOrder = 1004;
             perioGroup.add(drop);
           }
         }
 
-        if (pRecord.furca && pRecord.furca > 0) {
-          const furcaColors = { 1: 0xfacc15, 2: 0xf97316, 3: 0xdc2626 };
-          const fScale = 0.024 + (pRecord.furca * 0.005);
-          const furcaGeo = new THREE.ConeGeometry(fScale, fScale * 1.5, 3);
-          const furcaMat = new THREE.MeshBasicMaterial({ color: furcaColors[pRecord.furca] || 0xfacc15, depthTest: false });
-          const furcaCone = new THREE.Mesh(furcaGeo, furcaMat);
-          furcaCone.position.set(p.x, p.y - (yDir * 0.04), p.z + 0.065);
-          furcaCone.rotation.z = Math.PI;
-          furcaCone.renderOrder = 1004;
-          perioGroup.add(furcaCone);
+        if (pRec.movilidad > 0) {
+          const mov = new THREE.Mesh(new THREE.SphereGeometry(0.032, 12, 12), new THREE.MeshBasicMaterial({ color: 0xf59e0b, depthTest: false }));
+          mov.position.set(p.x, p.y + (yDir * 0.06), p.z);
+          perioGroup.add(mov);
         }
 
-        if (pRecord.movilidad && pRecord.movilidad > 0) {
-          const movGeo = new THREE.SphereGeometry(0.032, 12, 12);
-          const movMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, depthTest: false });
-          const movMarker = new THREE.Mesh(movGeo, movMat);
-          movMarker.position.set(p.x, p.y + (yDir * 0.06), p.z);
-          movMarker.renderOrder = 1005;
-          perioGroup.add(movMarker);
+        if (pRec.furca > 0) {
+          const fColors = { 1: 0xfacc15, 2: 0xf97316, 3: 0xdc2626 };
+          const cone = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.05, 3), new THREE.MeshBasicMaterial({ color: fColors[pRec.furca] || 0xfacc15, depthTest: false }));
+          cone.position.set(p.x, p.y - (yDir * 0.04), p.z + 0.065);
+          cone.rotation.z = Math.PI;
+          perioGroup.add(cone);
+        }
+      }
+    }
+
+    function renderBridges() {
+      while(bridgesGroup.children.length > 0) bridgesGroup.remove(bridgesGroup.children[0]);
+      const yDir = currentArch === 'superior' ? -1 : 1;
+      bridges.filter(b => b.arch === currentArch).forEach(br => {
+        const p1 = getToothWorldPos(currentPositions[br.start]).add(new THREE.Vector3(0, yDir * 0.03, 0));
+        const p2 = getToothWorldPos(currentPositions[br.end]).add(new THREE.Vector3(0, yDir * 0.03, 0));
+        const dist = p1.distanceTo(p2);
+        const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, dist, 16), new THREE.MeshBasicMaterial({ color: 0xf59e0b, depthTest: false }));
+        cyl.position.copy(new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5));
+        cyl.setRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0), new THREE.Vector3().subVectors(p2, p1).normalize()));
+        bridgesGroup.add(cyl);
+      });
+    }
+
+    function renderRemovable() {
+      while(removableGroup.children.length > 0) removableGroup.remove(removableGroup.children[0]);
+      const rem = removableRecords[currentArch];
+      const yDir = currentArch === 'superior' ? -1 : 1;
+      if (rem.type) {
+        const pts = getAnatomicalOrder().map(f => {
+          const p = getToothWorldPos(currentPositions[f]);
+          return new THREE.Vector3(p.x * 0.78, p.y - (yDir * 0.08), p.z * 0.78);
+        }).filter(v => v.length() > 0);
+        if (pts.length >= 4) {
+          const curve = new THREE.CatmullRomCurve3(pts);
+          const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 64, rem.type === 'esqueletica' ? 0.022 : 0.04, 10, false), new THREE.MeshStandardMaterial({ color: rem.type === 'esqueletica' ? 0x94a3b8 : 0xf472b6, metalness: rem.type === 'esqueletica' ? 0.9 : 0.1, depthTest: false }));
+          removableGroup.add(tube);
+        }
+      }
+      rem.retainers.forEach(f => {
+        const p = getToothWorldPos(currentPositions[f]);
+        const clasp = new THREE.Mesh(new THREE.TorusGeometry(0.065, 0.007, 8, 16, Math.PI * 1.4), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.95, depthTest: false }));
+        clasp.position.set(p.x, p.y - (yDir * 0.01), p.z);
+        clasp.rotation.x = Math.PI / 2;
+        removableGroup.add(clasp);
+      });
+    }
+
+    function renderOcclusion() {
+      while(occlusionGroup.children.length > 0) occlusionGroup.remove(occlusionGroup.children[0]);
+      const occ = occlusionRecords[currentArch];
+      const yDir = currentArch === 'superior' ? -1 : 1;
+      if (occ.splint) {
+        const pts = getAnatomicalOrder().map(f => {
+          const p = getToothWorldPos(currentPositions[f]);
+          return new THREE.Vector3(p.x, p.y + (yDir * 0.025), p.z);
+        }).filter(v => v.length() > 0);
+        if (pts.length >= 3) {
+          const curve = new THREE.CatmullRomCurve3(pts);
+          const splint = new THREE.Mesh(new THREE.TubeGeometry(curve, 64, 0.045, 12, false), new THREE.MeshPhysicalMaterial({ color: 0xa5f3fc, transmission: 0.85, opacity: 0.55, transparent: true, depthTest: false }));
+          occlusionGroup.add(splint);
+        }
+      }
+      for (const [fdi, gr] of Object.entries(occ.facets || {})) {
+        if (gr > 0) {
+          const p = getToothWorldPos(currentPositions[fdi]);
+          const facet = new THREE.Mesh(new THREE.CylinderGeometry(0.03 + (gr*0.008), 0.03 + (gr*0.008), 0.006, 12), new THREE.MeshBasicMaterial({ color: 0xf59e0b, depthTest: false }));
+          facet.position.set(p.x, p.y + (yDir * 0.03), p.z);
+          occlusionGroup.add(facet);
+        }
+      }
+    }
+
+    function renderTrauma() {
+      while(traumaGroup.children.length > 0) traumaGroup.remove(traumaGroup.children[0]);
+      const yDir = currentArch === 'superior' ? -1 : 1;
+      for (const [fdi, pos] of Object.entries(currentPositions)) {
+        const rec = clinicalRecords[fdi];
+        if (!rec || !rec.trauma) continue;
+        const p = getToothWorldPos(pos);
+        if (rec.trauma === 'incompleta' || rec.trauma === 'pulpar') {
+          const line = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.012, 0.08), new THREE.MeshBasicMaterial({ color: rec.trauma === 'pulpar' ? 0xef4444 : 0xf97316, depthTest: false }));
+          line.position.set(p.x, p.y + (yDir * 0.03), p.z + 0.01);
+          line.rotation.z = Math.PI / 6;
+          traumaGroup.add(line);
+        }
+        if (rec.trauma === 'radicular') {
+          const rad = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.16, 8), new THREE.MeshBasicMaterial({ color: 0xd946ef, depthTest: false }));
+          rad.position.set(p.x, p.y - (yDir * 0.10), p.z + 0.045);
+          traumaGroup.add(rad);
+        }
+      }
+    }
+
+    function renderMalposition() {
+      while(malpositionGroup.children.length > 0) malpositionGroup.remove(malpositionGroup.children[0]);
+      const yDir = currentArch === 'superior' ? -1 : 1;
+      for (const [fdi, pos] of Object.entries(currentPositions)) {
+        const rec = clinicalRecords[fdi];
+        if (!rec || !rec.malposition) continue;
+        const p = getToothWorldPos(pos);
+        if (rec.malposition === 'diastema') {
+          const bar = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.04, 0.03), new THREE.MeshBasicMaterial({ color: 0x06b6d4, depthTest: false }));
+          bar.position.set(p.x - 0.05, p.y + (yDir * 0.02), p.z);
+          malpositionGroup.add(bar);
+        }
+        if (rec.malposition === 'giro') {
+          const torus = new THREE.Mesh(new THREE.TorusGeometry(0.045, 0.007, 8, 16, Math.PI * 1.5), new THREE.MeshBasicMaterial({ color: 0xeab308, depthTest: false }));
+          torus.position.set(p.x, p.y + (yDir * 0.04), p.z);
+          torus.rotation.x = Math.PI / 2;
+          malpositionGroup.add(torus);
+        }
+      }
+    }
+
+    function renderEstetica() {
+      while(esteticaGroup.children.length > 0) esteticaGroup.remove(esteticaGroup.children[0]);
+      const est = esteticaRecords[currentArch];
+      for (const [fdi, pos] of Object.entries(currentPositions)) {
+        const p = getToothWorldPos(pos);
+        const shade = est.shades[fdi];
+        if (shade && VITA_COLORS[shade]) {
+          const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.072, 14, 14), new THREE.MeshStandardMaterial({ color: VITA_COLORS[shade], roughness: 0.35, depthTest: false }));
+          mesh.position.copy(p);
+          esteticaGroup.add(mesh);
+        }
+        if (est.bleaching) {
+          const b = new THREE.Mesh(new THREE.SphereGeometry(0.08, 14, 14), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.35, depthTest: false }));
+          b.position.copy(p);
+          esteticaGroup.add(b);
+        }
+      }
+    }
+
+    function renderOrtho() {
+      while(orthoGroup.children.length > 0) orthoGroup.remove(orthoGroup.children[0]);
+      const o = orthoRecords[currentArch];
+      const yDir = currentArch === 'superior' ? -1 : 1;
+      const anatomicalOrder = getAnatomicalOrder();
+      const bracketPoints = [];
+
+      anatomicalOrder.forEach(fdi => {
+        const bType = o.brackets[fdi];
+        const pos = currentPositions[fdi];
+        if (!pos) return;
+
+        const p = getToothWorldPos(pos);
+        const bracketPos = p.clone().add(new THREE.Vector3(0, -yDir * 0.005, 0.06));
+
+        if (bType) {
+          bracketPoints.push(bracketPos);
+          const brk = new THREE.Mesh(new THREE.BoxGeometry(0.034, 0.034, 0.02), new THREE.MeshStandardMaterial({ color: bType === 'zafiro' ? 0xe0f2fe : 0xd1d5db, metalness: 0.85, depthTest: false }));
+          brk.position.copy(bracketPos);
+          orthoGroup.add(brk);
+        }
+      });
+
+      if (o.wire && o.wire !== 'none' && bracketPoints.length >= 2) {
+        const curve = new THREE.CatmullRomCurve3(bracketPoints);
+        const wireColor = (o.wire === 'estetico') ? 0xf8fafc : 0xcbd5e1;
+        const wireMat = new THREE.MeshStandardMaterial({ color: wireColor, metalness: o.wire === 'estetico' ? 0.1 : 0.95, roughness: 0.2, depthTest: false });
+        const wireMesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 64, 0.006, 8, false), wireMat);
+        orthoGroup.add(wireMesh);
+      }
+    }
+
+    function renderPediatric() {
+      while(pediatricGroup.children.length > 0) pediatricGroup.remove(pediatricGroup.children[0]);
+      const yDir = currentArch === 'superior' ? -1 : 1;
+      const archFluorActive = pediatricRecords[currentArch]?.fluorArch;
+
+      for (const [fdi, pos] of Object.entries(currentPositions)) {
+        const rec = clinicalRecords[fdi];
+        const p = getToothWorldPos(pos);
+
+        if (archFluorActive || (rec && rec.pediatric === 'fluor')) {
+          const fluorSphere = new THREE.Mesh(new THREE.SphereGeometry(0.078, 16, 16), new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.4, depthTest: false }));
+          fluorSphere.position.copy(p);
+          pediatricGroup.add(fluorSphere);
+        }
+
+        if (!rec || !rec.pediatric) continue;
+
+        if (rec.pediatric === 'sellante') {
+          const s = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.008, 0.012), new THREE.MeshBasicMaterial({ color: 0x10b981, depthTest: false }));
+          s.position.set(p.x, p.y + (yDir * 0.035), p.z);
+          pediatricGroup.add(s);
+        }
+        if (rec.pediatric === 'mantenedor') {
+          const band = new THREE.Mesh(new THREE.CylinderGeometry(0.068, 0.068, 0.04, 16, 1, true), new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.9, depthTest: false }));
+          band.position.copy(p);
+          pediatricGroup.add(band);
         }
       }
     }
@@ -1407,103 +1394,336 @@
       const items = [];
 
       for (const [fdi, rec] of Object.entries(clinicalRecords)) {
-        if (rec.general && ARANCELES[rec.general]) {
-          const names = { corona: 'Corona Definitiva', endodoncia: 'Tratamiento de Conducto', implante: 'Implante Osteointegrado' };
-          items.push({ item: `Pieza ${fdi}: ${names[rec.general] || rec.general}`, price: ARANCELES[rec.general] });
-          total += ARANCELES[rec.general];
-        }
-
-        if (rec.surgery && ARANCELES[rec.surgery]) {
-          const sNames = {
-            exodoncia: 'Exodoncia Simple/Compleja',
-            impactado: 'Cirugía Muela del Juicio Impactada',
-            lesion: 'Apicectomía y Tratamiento de Quiste',
-            perno: 'Perno de Fibra / Muñón Colado'
-          };
-          items.push({ item: `Pieza ${fdi}: ${sNames[rec.surgery] || rec.surgery}`, price: ARANCELES[rec.surgery] });
-          total += ARANCELES[rec.surgery];
-        }
-
-        if (rec.restoration && ARANCELES[rec.restoration]) {
-          const rNames = { inlay: 'Incrustación Inlay', onlay: 'Incrustación Onlay', overlay: 'Incrustación Overlay', carilla: 'Carilla Cerámica' };
-          items.push({ item: `Pieza ${fdi}: ${rNames[rec.restoration] || rec.restoration}`, price: ARANCELES[rec.restoration] });
-          total += ARANCELES[rec.restoration];
-        }
-
-        if (rec.pediatric && ARANCELES[rec.pediatric]) {
-          const pNames = { sellante: 'Sellante Fosas y Fisuras', fluor: 'Flúor Barniz Focal', pulpotomia: 'Pulpotomía Pediátrica', pulpectomia: 'Pulpectomía Pediátrica', mantenedor: 'Mantenedor Banda-Asa' };
-          items.push({ item: `Pieza ${fdi}: ${pNames[rec.pediatric] || rec.pediatric}`, price: ARANCELES[rec.pediatric] });
-          total += ARANCELES[rec.pediatric];
-        }
-
+        if (rec.status === 'existente') continue;
+        if (rec.general && ARANCELES[rec.general]) { items.push({ item: `Pz ${fdi}: ${rec.general.toUpperCase()}`, price: ARANCELES[rec.general] }); total += ARANCELES[rec.general]; }
+        if (rec.surgery && ARANCELES[rec.surgery]) { items.push({ item: `Pz ${fdi}: ${rec.surgery.toUpperCase()}`, price: ARANCELES[rec.surgery] }); total += ARANCELES[rec.surgery]; }
+        if (rec.trauma && ARANCELES[`trauma_${rec.trauma}`]) { items.push({ item: `Pz ${fdi}: Trauma ${rec.trauma}`, price: ARANCELES[`trauma_${rec.trauma}`] }); total += ARANCELES[`trauma_${rec.trauma}`]; }
+        if (rec.malposition && ARANCELES.malposicion_correccion) { items.push({ item: `Pz ${fdi}: ${rec.malposition}`, price: ARANCELES.malposicion_correccion }); total += ARANCELES.malposicion_correccion; }
+        if (rec.restoration && ARANCELES[rec.restoration]) { items.push({ item: `Pz ${fdi}: ${rec.restoration.toUpperCase()}`, price: ARANCELES[rec.restoration] }); total += ARANCELES[rec.restoration]; }
+        if (rec.pediatric && ARANCELES[rec.pediatric]) { items.push({ item: `Pz ${fdi}: ${rec.pediatric.toUpperCase()}`, price: ARANCELES[rec.pediatric] }); total += ARANCELES[rec.pediatric]; }
         if (rec.faces) {
-          const count = Object.keys(rec.faces).length;
-          if (count > 0) {
-            const subtotal = count * ARANCELES.resina;
-            items.push({ item: `Pieza ${fdi}: Obturación Resina (${count} caras)`, price: subtotal });
-            total += subtotal;
-          }
+          const diag = Object.values(rec.faces).filter(s => s !== 'existente').length;
+          if (diag > 0) { const sub = diag * ARANCELES.resina; items.push({ item: `Pz ${fdi}: Resina (${diag} caras)`, price: sub }); total += sub; }
         }
       }
 
       ['inferior', 'superior'].forEach(archKey => {
-        if (pediatricRecords[archKey] && pediatricRecords[archKey].fluorArch) {
-          items.push({ item: `Prevención: Flúor Arcada Completa (${archKey})`, price: ARANCELES.fluor_arcada });
-          total += ARANCELES.fluor_arcada;
-        }
+        if (removableRecords[archKey].type) { const p = ARANCELES.ppr_esqueletica; items.push({ item: `PPR (${archKey})`, price: p }); total += p; }
+        if (occlusionRecords[archKey].splint) { items.push({ item: `Férula Miorrelajante (${archKey})`, price: ARANCELES.plano_miorrelajante }); total += ARANCELES.plano_miorrelajante; }
+        if (esteticaRecords[archKey].bleaching) { items.push({ item: `Blanqueamiento (${archKey})`, price: ARANCELES.blanqueamiento_arcada }); total += ARANCELES.blanqueamiento_arcada; }
+        if (pediatricRecords[archKey]?.fluorArch) { items.push({ item: `Flúor Arcada Completa (${archKey})`, price: ARANCELES.fluor_arcada }); total += ARANCELES.fluor_arcada; }
+        if (orthoRecords[archKey]?.wire && orthoRecords[archKey]?.wire !== 'none') { items.push({ item: `Arco Ortodóntico (${archKey})`, price: ARANCELES.arco_orto }); total += ARANCELES.arco_orto; }
       });
 
-      bridges.forEach(b => {
-        items.push({ item: `Prótesis Fija: Puente (${b.start} - ${b.end})`, price: ARANCELES.puente_tramo });
-        total += ARANCELES.puente_tramo;
-      });
-
-      ['inferior', 'superior'].forEach(archKey => {
-        const o = orthoRecords[archKey];
-        const brkCount = Object.keys(o.brackets).length;
-        if (brkCount > 0) {
-          const brkPrice = (Object.values(o.brackets)[0] === 'zafiro') ? ARANCELES.bracket_zafiro : ARANCELES.bracket_metal;
-          const sub = brkCount * brkPrice;
-          items.push({ item: `Ortodoncia (${archKey}): ${brkCount} Brackets`, price: sub });
-          total += sub;
-        }
-        if (o.wire && o.wire !== 'none') {
-          items.push({ item: `Ortodoncia (${archKey}): Arco de Alambre`, price: ARANCELES.arco_orto });
-          total += ARANCELES.arco_orto;
-        }
-      });
-
-      const totalLbl = document.getElementById('lbl-total-budget');
-      if (totalLbl) totalLbl.innerText = `$${total.toLocaleString('es-CL')} CLP`;
-
-      const listContainer = document.getElementById('budget-items-list');
-      if (listContainer) {
-        if (items.length === 0) {
-          listContainer.innerHTML = '<div style="font-size:11px; color:#64748b; text-align:center; padding:12px;">Sin procedimientos diagnosticados</div>';
-        } else {
-          listContainer.innerHTML = items.map(it => `
-            <div class="budget-item">
-              <span>${it.item}</span>
-              <strong style="color:#38bdf8;">$${it.price.toLocaleString('es-CL')}</strong>
-            </div>
-          `).join('');
-        }
-      }
-
+      document.getElementById('btn-top-budget').innerText = `💰 $${total.toLocaleString('es-CL')} CLP`;
       return { total, items };
     }
 
-    // Modal de Consentimiento y Firma Digital
+    // Periodoncia 6 Sitios
+    window.cycleDepth = function(site) {
+      if (!selectedTooth) return;
+      if (!perioRecords[selectedTooth]) perioRecords[selectedTooth] = { depths: { mv:2, v:2, dv:2, ml:2, l:2, dl:2 }, recession: {}, bop: {}, movilidad:0, furca:0 };
+      if (!perioRecords[selectedTooth].depths) perioRecords[selectedTooth].depths = { mv:2, v:2, dv:2, ml:2, l:2, dl:2 };
+
+      const cur = perioRecords[selectedTooth].depths[site] || 2;
+      const next = cur >= 8 ? 2 : cur + 2;
+      perioRecords[selectedTooth].depths[site] = next;
+      document.getElementById(`lbl-perio-${site}`).innerText = `${next}mm`;
+      renderPerioMarkers();
+    };
+
+    window.cycleRecession = function(site) {
+      if (!selectedTooth) return;
+      if (!perioRecords[selectedTooth]) perioRecords[selectedTooth] = { depths: {}, recession: {}, bop: {}, movilidad:0, furca:0 };
+      if (!perioRecords[selectedTooth].recession) perioRecords[selectedTooth].recession = {};
+
+      const cur = perioRecords[selectedTooth].recession[site] || 0;
+      const next = cur >= 5 ? 0 : cur + 1;
+      perioRecords[selectedTooth].recession[site] = next;
+      document.getElementById(`lbl-rec-${site}`).innerText = `${next}mm`;
+      renderPerioMarkers();
+    };
+
+    window.toggleSiteBOP = function(site) {
+      if (!selectedTooth) return;
+      if (!perioRecords[selectedTooth]) perioRecords[selectedTooth] = { depths: {}, recession: {}, bop: {}, movilidad:0, furca:0 };
+      if (!perioRecords[selectedTooth].bop) perioRecords[selectedTooth].bop = {};
+
+      perioRecords[selectedTooth].bop[site] = !perioRecords[selectedTooth].bop[site];
+      document.getElementById(`btn-bop-${site}`)?.classList.toggle('active-bop', perioRecords[selectedTooth].bop[site]);
+      renderPerioMarkers();
+    };
+
+    window.cycleMovilidad = function() {
+      if (!selectedTooth) return;
+      const cur = perioRecords[selectedTooth]?.movilidad || 0;
+      const next = (cur + 1) % 4;
+      if (!perioRecords[selectedTooth]) perioRecords[selectedTooth] = { depths: {}, bop: {}, movilidad:0, furca:0 };
+      perioRecords[selectedTooth].movilidad = next;
+      document.getElementById('lbl-mov-val').innerText = `G${next}`;
+      renderPerioMarkers();
+    };
+
+    window.cycleFurca = function() {
+      if (!selectedTooth) return;
+      const cur = perioRecords[selectedTooth]?.furca || 0;
+      const next = (cur + 1) % 4;
+      if (!perioRecords[selectedTooth]) perioRecords[selectedTooth] = { depths: {}, bop: {}, movilidad:0, furca:0 };
+      perioRecords[selectedTooth].furca = next;
+      document.getElementById('lbl-furca-val').innerText = `F${next}`;
+      renderPerioMarkers();
+    };
+
+    // Acciones Generales y Clínicas
+    window.toggleFace = function(face) {
+      if (!selectedTooth) return;
+      if (!clinicalRecords[selectedTooth]) clinicalRecords[selectedTooth] = { faces: {}, status: currentClinicalState };
+      if (!clinicalRecords[selectedTooth].faces) clinicalRecords[selectedTooth].faces = {};
+      
+      if (clinicalRecords[selectedTooth].faces[face] === currentClinicalState) {
+        delete clinicalRecords[selectedTooth].faces[face];
+      } else {
+        clinicalRecords[selectedTooth].faces[face] = currentClinicalState;
+      }
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
+    window.setGeneralCondition = function(t) {
+      if (!selectedTooth) return;
+      if (!clinicalRecords[selectedTooth]) clinicalRecords[selectedTooth] = {};
+      clinicalRecords[selectedTooth].general = (clinicalRecords[selectedTooth].general === t) ? null : t;
+      clinicalRecords[selectedTooth].status = currentClinicalState;
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
+    window.setSurgCondition = function(t) {
+      if (!selectedTooth) return;
+      if (!clinicalRecords[selectedTooth]) clinicalRecords[selectedTooth] = {};
+      clinicalRecords[selectedTooth].surgery = (clinicalRecords[selectedTooth].surgery === t) ? null : t;
+      clinicalRecords[selectedTooth].status = currentClinicalState;
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
+    window.setRestorationCondition = function(t) {
+      if (!selectedTooth) return;
+      if (!clinicalRecords[selectedTooth]) clinicalRecords[selectedTooth] = {};
+      clinicalRecords[selectedTooth].restoration = (clinicalRecords[selectedTooth].restoration === t) ? null : t;
+      clinicalRecords[selectedTooth].status = currentClinicalState;
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
+    window.setFacetCondition = function(gr) {
+      if (!selectedTooth) return;
+      occlusionRecords[currentArch].facets[selectedTooth] = (occlusionRecords[currentArch].facets[selectedTooth] === gr) ? 0 : gr;
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
+    window.toggleSplintArch = function() {
+      occlusionRecords[currentArch].splint = !occlusionRecords[currentArch].splint;
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
+    window.setTraumaCondition = function(t) {
+      if (!selectedTooth) return;
+      if (!clinicalRecords[selectedTooth]) clinicalRecords[selectedTooth] = {};
+      clinicalRecords[selectedTooth].trauma = (clinicalRecords[selectedTooth].trauma === t) ? null : t;
+      clinicalRecords[selectedTooth].status = currentClinicalState;
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
+    window.setMalpositionCondition = function(m) {
+      if (!selectedTooth) return;
+      if (!clinicalRecords[selectedTooth]) clinicalRecords[selectedTooth] = {};
+      clinicalRecords[selectedTooth].malposition = (clinicalRecords[selectedTooth].malposition === m) ? null : m;
+      clinicalRecords[selectedTooth].status = currentClinicalState;
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
+    window.setVitaShade = function(sh) {
+      if (!selectedTooth) return;
+      esteticaRecords[currentArch].shades[selectedTooth] = (esteticaRecords[currentArch].shades[selectedTooth] === sh) ? null : sh;
+      updateUIState();
+      renderAllLayers();
+    };
+
+    window.toggleBleachingArch = function() {
+      esteticaRecords[currentArch].bleaching = !esteticaRecords[currentArch].bleaching;
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
+    window.setPediatricCondition = function(p) {
+      if (!selectedTooth) return;
+      if (!clinicalRecords[selectedTooth]) clinicalRecords[selectedTooth] = {};
+      clinicalRecords[selectedTooth].pediatric = (clinicalRecords[selectedTooth].pediatric === p) ? null : p;
+      clinicalRecords[selectedTooth].status = currentClinicalState;
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
+    window.setOrthoPiece = function(b) {
+      if (!selectedTooth) return;
+      orthoRecords[currentArch].brackets[selectedTooth] = (orthoRecords[currentArch].brackets[selectedTooth] === b) ? null : b;
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
+    window.setWireType = function(wireType) {
+      orthoRecords[currentArch].wire = wireType;
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
+    window.applyOrthoToFullArch = function(type) {
+      getAnatomicalOrder().forEach(f => orthoRecords[currentArch].brackets[f] = type);
+      if (type) orthoRecords[currentArch].wire = 'niti';
+      else orthoRecords[currentArch].wire = 'none';
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
+    window.setArchRemovableType = function(t) {
+      removableRecords[currentArch].type = t;
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
+    window.toggleRemovableRetainer = function() {
+      if (!selectedTooth) return;
+      const rets = removableRecords[currentArch].retainers;
+      const idx = rets.indexOf(selectedTooth);
+      if (idx > -1) rets.splice(idx, 1); else rets.push(selectedTooth);
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
+    window.handleBridgeButton = function() {
+      if (!selectedTooth) { alert('Selecciona una pieza pilar.'); return; }
+      if (!bridgeStartTooth) {
+        bridgeStartTooth = selectedTooth;
+        document.getElementById('btn-bridge-action').innerText = `🔗 Unir con Pz ${selectedTooth}`;
+      } else {
+        if (bridgeStartTooth !== selectedTooth) {
+          bridges.push({ start: bridgeStartTooth, end: selectedTooth, arch: currentArch });
+          bridgeStartTooth = null;
+          document.getElementById('btn-bridge-action').innerText = '🌉 Trazar Puente desde Pieza';
+          renderAllLayers();
+          calculateBudget();
+        }
+      }
+    };
+
+    function updateUIState() {
+      ['v', 'm', 'o', 'd', 'l'].forEach(f => {
+        const el = document.getElementById(`face-${f}`);
+        if (el) el.className = 'cross-cell';
+      });
+
+      if (selectedTooth && clinicalRecords[selectedTooth]?.faces) {
+        for (const [face, state] of Object.entries(clinicalRecords[selectedTooth].faces)) {
+          document.getElementById(`face-${face.toLowerCase()}`)?.classList.add(`state-${state}`);
+        }
+      }
+
+      if (selectedTooth && perioRecords[selectedTooth]) {
+        const pRec = perioRecords[selectedTooth];
+        ['mv', 'v', 'dv', 'ml', 'l', 'dl'].forEach(s => {
+          const depth = pRec.depths?.[s] || 2;
+          const rec = pRec.recession?.[s] || 0;
+          const hasBop = pRec.bop?.[s] || false;
+          const lbl = document.getElementById(`lbl-perio-${s}`);
+          const lblRec = document.getElementById(`lbl-rec-${s}`);
+          const bopBtn = document.getElementById(`btn-bop-${s}`);
+          if (lbl) lbl.innerText = `${depth}mm`;
+          if (lblRec) lblRec.innerText = `${rec}mm`;
+          if (bopBtn) bopBtn.classList.toggle('active-bop', hasBop);
+        });
+        document.getElementById('lbl-mov-val').innerText = `G${pRec.movilidad || 0}`;
+        document.getElementById('lbl-furca-val').innerText = `F${pRec.furca || 0}`;
+      } else {
+        ['mv', 'v', 'dv', 'ml', 'l', 'dl'].forEach(s => {
+          const lbl = document.getElementById(`lbl-perio-${s}`);
+          const lblRec = document.getElementById(`lbl-rec-${s}`);
+          const bopBtn = document.getElementById(`btn-bop-${s}`);
+          if (lbl) lbl.innerText = `2mm`;
+          if (lblRec) lblRec.innerText = `0mm`;
+          if (bopBtn) bopBtn.classList.remove('active-bop');
+        });
+        document.getElementById('lbl-mov-val').innerText = `G0`;
+        document.getElementById('lbl-furca-val').innerText = `F0`;
+      }
+
+      const cur = selectedTooth ? clinicalRecords[selectedTooth] : null;
+      ['corona', 'endodoncia', 'implante', 'ausente'].forEach(b => {
+        document.getElementById(`btn-${b}`)?.classList.toggle('active', cur?.general === b);
+      });
+      ['exodoncia', 'resto', 'impactado', 'lesion', 'perno'].forEach(b => {
+        document.getElementById(`btn-surg-${b}`)?.classList.toggle('active', cur?.surgery === b);
+      });
+      ['inlay', 'onlay', 'overlay', 'carilla'].forEach(b => {
+        document.getElementById(`btn-${b}`)?.classList.toggle('active', cur?.restoration === b);
+      });
+      ['incompleta', 'pulpar', 'radicular'].forEach(b => {
+        document.getElementById(`btn-trauma-${b}`)?.classList.toggle('active', cur?.trauma === b);
+      });
+      ['diastema', 'giro', 'extrusion', 'intrusion', 'inclinacion'].forEach(b => {
+        document.getElementById(`btn-mal-${b}`)?.classList.toggle('active', cur?.malposition === b);
+      });
+      ['sellante', 'fluor', 'pulpotomia', 'pulpectomia', 'mantenedor'].forEach(b => {
+        document.getElementById(`btn-ped-${b}`)?.classList.toggle('active', cur?.pediatric === b);
+      });
+      ['metal', 'zafiro', 'tubo'].forEach(b => {
+        document.getElementById(`btn-brk-${b}`)?.classList.toggle('active', orthoRecords[currentArch].brackets[selectedTooth] === b);
+      });
+      ['BL1', 'A1', 'A2', 'A3', 'B1', 'B2', 'C1', 'D2'].forEach(s => {
+        document.getElementById(`vita-${s}`)?.classList.toggle('active', esteticaRecords[currentArch].shades[selectedTooth] === s);
+      });
+      [1, 2, 3].forEach(g => {
+        document.getElementById(`btn-occ-f${g}`)?.classList.toggle('active', occlusionRecords[currentArch].facets[selectedTooth] === g);
+      });
+
+      ['none', 'niti', 'estetico'].forEach(w => {
+        document.getElementById(`wire-${w}`)?.classList.toggle('active', orthoRecords[currentArch].wire === w);
+      });
+
+      document.getElementById('btn-splint-arch')?.classList.toggle('active', occlusionRecords[currentArch].splint);
+      document.getElementById('btn-bleach-arch')?.classList.toggle('active', esteticaRecords[currentArch].bleaching);
+      document.getElementById('btn-fluor-arch-btn')?.classList.toggle('active', pediatricRecords[currentArch].fluorArch);
+      document.getElementById('btn-rem-gancho')?.classList.toggle('active', selectedTooth ? removableRecords[currentArch].retainers.includes(selectedTooth) : false);
+    }
+
+    // Modal Consentimiento y Firma Digital
     const sigCanvas = document.getElementById('signature-pad');
     const sigCtx = sigCanvas.getContext('2d');
-    let isDrawing = false;
-    let hasSignature = false;
+    let isDrawing = false, hasSignature = false;
 
     function initSignaturePad() {
       sigCtx.strokeStyle = '#0f172a';
       sigCtx.lineWidth = 2.5;
       sigCtx.lineCap = 'round';
-      sigCtx.lineJoin = 'round';
 
       function getPos(e) {
         const rect = sigCanvas.getBoundingClientRect();
@@ -1511,182 +1731,114 @@
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         return { x: clientX - rect.left, y: clientY - rect.top };
       }
+      function start(e) { isDrawing = true; hasSignature = true; const p = getPos(e); sigCtx.beginPath(); sigCtx.moveTo(p.x, p.y); e.preventDefault(); }
+      function move(e) { if (!isDrawing) return; const p = getPos(e); sigCtx.lineTo(p.x, p.y); sigCtx.stroke(); e.preventDefault(); }
+      function stop() { isDrawing = false; }
 
-      function startDraw(e) {
-        isDrawing = true;
-        hasSignature = true;
-        const p = getPos(e);
-        sigCtx.beginPath();
-        sigCtx.moveTo(p.x, p.y);
-        e.preventDefault();
-      }
-
-      function draw(e) {
-        if (!isDrawing) return;
-        const p = getPos(e);
-        sigCtx.lineTo(p.x, p.y);
-        sigCtx.stroke();
-        e.preventDefault();
-      }
-
-      function stopDraw() { isDrawing = false; }
-
-      sigCanvas.addEventListener('mousedown', startDraw);
-      sigCanvas.addEventListener('mousemove', draw);
-      window.addEventListener('mouseup', stopDraw);
-
-      sigCanvas.addEventListener('touchstart', startDraw, { passive: false });
-      sigCanvas.addEventListener('touchmove', draw, { passive: false });
-      window.addEventListener('touchend', stopDraw);
+      sigCanvas.addEventListener('mousedown', start);
+      sigCanvas.addEventListener('mousemove', move);
+      window.addEventListener('mouseup', stop);
+      sigCanvas.addEventListener('touchstart', start, { passive: false });
+      sigCanvas.addEventListener('touchmove', move, { passive: false });
+      window.addEventListener('touchend', stop);
     }
     initSignaturePad();
 
-    window.clearSignature = function() {
-      sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
-      hasSignature = false;
-    };
-
-    window.openConsentModal = function(actionType) {
-      consentActionType = actionType;
-      document.getElementById('consent-modal').style.display = 'flex';
-    };
-
-    window.closeConsentModal = function() {
-      document.getElementById('consent-modal').style.display = 'none';
-    };
+    window.clearSignature = function() { sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); hasSignature = false; };
+    window.openConsentModal = function(type) { consentActionType = type; document.getElementById('consent-modal').style.display = 'flex'; };
+    window.closeConsentModal = function() { document.getElementById('consent-modal').style.display = 'none'; };
 
     window.submitConsent = function(type) {
       const pName = document.getElementById('pdf-patient-name').value.trim() || 'Paciente General';
       const pId = document.getElementById('pdf-patient-id').value.trim() || 'Sin Especificar';
       const pPhone = document.getElementById('pdf-patient-phone').value.trim();
-      const dName = document.getElementById('pdf-doctor-name').value.trim() || 'Dr. Tratante';
+      const dName = document.getElementById('pdf-doctor-name').value.trim() || 'Dr. Orlando Toledo';
       const sigData = hasSignature ? sigCanvas.toDataURL('image/png') : null;
 
       if (type === 'ghl' && !pPhone) {
-        alert('Ingresa el teléfono del paciente antes de enviar a GHL — se usa para identificar al contacto y para la confirmación automática.');
+        alert('Ingresa el teléfono del paciente antes de enviar a GHL.');
         return;
       }
 
       closeConsentModal();
 
-      if (type === 'pdf') {
-        generateClinicalPDF(pName, pId, dName, sigData);
-      } else {
-        syncToGHLWithConsent(pName, pId, dName, sigData, pPhone);
-      }
+      if (type === 'pdf') generatePDF(pName, pId, dName, sigData);
+      else syncToGHL(pName, pId, dName, sigData, pPhone);
     };
 
-    // Construye el PDF clínico + consentimiento (con la firma incrustada)
-    // y devuelve el objeto doc SIN guardarlo. La usan generateClinicalPDF
-    // (descarga local) y syncToGHLWithConsent (lo manda al backend para
-    // subirlo a GHL) — antes esta lógica solo existía adentro de
-    // generateClinicalPDF, duplicarla habría sido la forma fácil de que
-    // las dos versiones del consentimiento terminaran desalineadas.
     function buildClinicalPDF(pName, pId, dName, sigImg) {
       renderer.render(scene, camera);
-      const imgData3D = renderer.domElement.toDataURL('image/png', 1.0);
-
+      const img3D = renderer.domElement.toDataURL('image/png', 1.0);
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF('p', 'mm', 'a4');
 
-      // Encabezado
       doc.setFillColor(15, 23, 42);
-      doc.rect(0, 0, 210, 32, 'F');
+      doc.rect(0, 0, 210, 30, 'F');
       doc.setTextColor(255, 255, 255);
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(15);
-      doc.text('INFORME CLÍNICO & CONSENTIMIENTO INFORMADO 3D', 14, 15);
+      doc.setFontSize(14);
+      doc.text('INFORME CLÍNICO & CONSENTIMIENTO INFORMADO 3D', 14, 14);
       doc.setFontSize(8.5);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(148, 163, 184);
-      doc.text(`Fecha: ${new Date().toLocaleDateString('es-CL')} ${new Date().toLocaleTimeString('es-CL')}`, 14, 24);
-      doc.text(`Dentición: ${currentMode.toUpperCase()} | Arcada: ${currentArch.toUpperCase()}`, 130, 24);
+      doc.text(`Fecha: ${new Date().toLocaleDateString('es-CL')} | Dentición: ${currentMode.toUpperCase()} | Arcada: ${currentArch.toUpperCase()}`, 14, 22);
 
-      // Ficha Paciente
       doc.setFillColor(241, 245, 249);
-      doc.rect(14, 36, 182, 18, 'F');
+      doc.rect(14, 34, 182, 16, 'F');
       doc.setTextColor(30, 41, 59);
-      doc.setFontSize(9.5);
+      doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
-      doc.text(`Paciente: ${pName}`, 18, 43);
-      doc.text(`RUT / ID: ${pId}`, 18, 49);
-      doc.text(`Tratante: ${dName}`, 110, 43);
-      doc.text(`Consentimiento: Validado y Firmado`, 110, 49);
+      doc.text(`Paciente: ${pName}  |  RUT: ${pId}  |  Tratante: ${dName}`, 18, 44);
 
-      // Captura 3D
-      doc.setFontSize(10);
-      doc.setTextColor(15, 23, 42);
-      doc.text('1. Registro Anatómico 3D de la Arcada:', 14, 60);
-      doc.addImage(imgData3D, 'PNG', 14, 63, 182, 80);
+      doc.addImage(img3D, 'PNG', 14, 54, 182, 80);
 
-      // Tabla de Tratamientos
-      const budgetData = calculateBudget();
-      const tableRows = budgetData.items.map(it => [it.item, `$${it.price.toLocaleString('es-CL')} CLP`]);
-      if (tableRows.length === 0) tableRows.push(['Examen Preventivo Integral', '$0 CLP']);
-
-      doc.text('2. Desglose de Tratamientos y Aranceles:', 14, 150);
+      const budget = calculateBudget();
+      const rows = budget.items.map(i => [i.item, `$${i.price.toLocaleString('es-CL')} CLP`]);
+      if (rows.length === 0) rows.push(['Evaluación General', '$0 CLP']);
 
       doc.autoTable({
-        startY: 153,
-        head: [['Procedimiento / Especialidad', 'Arancel']],
-        body: tableRows,
-        foot: [['TOTAL PLAN DE TRATAMIENTO', `$${budgetData.total.toLocaleString('es-CL')} CLP`]],
+        startY: 138,
+        head: [['Tratamiento Planificado', 'Arancel']],
+        body: rows,
+        foot: [['TOTAL PLAN DE TRATAMIENTO', `$${budget.total.toLocaleString('es-CL')} CLP`]],
         theme: 'striped',
-        headStyles: { fillColor: [37, 99, 235], fontSize: 8.5, fontStyle: 'bold' },
-        footStyles: { fillColor: [15, 23, 42], textColor: [56, 189, 248], fontSize: 9.5, fontStyle: 'bold' },
-        styles: { fontSize: 8, cellPadding: 2.5 }
+        headStyles: { fillColor: [37, 99, 235], fontSize: 8.5 },
+        styles: { fontSize: 8, cellPadding: 2 }
       });
 
-      // Consentimiento y Firma Digital
-      const finalY = doc.lastAutoTable.finalY + 8;
-      if (finalY < 240) {
+      const finalY = doc.lastAutoTable.finalY + 6;
+      if (finalY < 250) {
+        if (sigImg) doc.addImage(sigImg, 'PNG', 24, finalY + 2, 50, 16);
         doc.setFontSize(7.5);
-        doc.setFont('helvetica', 'normal');
         doc.setTextColor(100, 116, 139);
-        const consentTxt = 'Declaro haber sido informado/a detalladamente de los procedimientos, alternativas, riesgos y presupuesto expresados en este informe clínico, manifestando mi conformidad mediante mi firma electrónica/digital estampada.';
-        doc.text(doc.splitTextToSize(consentTxt, 182), 14, finalY);
-
-        if (sigImg) {
-          doc.addImage(sigImg, 'PNG', 24, finalY + 6, 55, 18);
-        }
-
-        doc.setDrawColor(148, 163, 184);
-        doc.line(24, finalY + 26, 84, finalY + 26);
-        doc.line(126, finalY + 26, 186, finalY + 26);
-
-        doc.setFontSize(8);
-        doc.text(`Firma Paciente / ${pName}`, 28, finalY + 30);
-        doc.text(`Firma y Timbre / ${dName}`, 134, finalY + 30);
+        doc.text('Firma de Conformidad del Paciente / Tutor', 24, finalY + 22);
       }
-
       return doc;
     }
 
-    function generateClinicalPDF(pName, pId, dName, sigImg) {
-      document.getElementById('status').innerText = 'Generando Informe Clínico con Firma...';
+    function generatePDF(pName, pId, dName, sigImg) {
       const doc = buildClinicalPDF(pName, pId, dName, sigImg);
-      doc.save(`Ficha_Clinica_${pName.replace(/\s+/g, '_')}.pdf`);
-      document.getElementById('status').innerText = 'Informe Clínico con Firma generado con éxito.';
+      doc.save(`Ficha_${pName.replace(/\s+/g, '_')}.pdf`);
     }
 
-    async function syncToGHLWithConsent(pName, pId, dName, sigImg, pPhone) {
-      const budgetData = calculateBudget();
-      if (budgetData.total === 0) {
-        alert('El presupuesto actual es de $0. Marca procedimientos antes de sincronizar con GHL.');
-        return;
-      }
+    // Reemplazar con la URL y el secreto reales (los mismos del .env
+    // del servicio odontograma_webhook.py en el EC2) antes de publicar.
+    // ⚠️ Esto corre en el navegador del paciente — el "secreto" es
+    // visible con Ver código fuente, no es autenticación real, solo
+    // filtra tráfico accidental.
+    const ODONTOGRAMA_WEBHOOK_URL = 'https://odontograma.orlandotoledo.com/webhook/odontograma';
+    const ODONTOGRAMA_WEBHOOK_SECRET = '09ec30cb812f54cd467df71c050db38bd91487ee33d29ad5';
 
-      const statusEl = document.getElementById('status');
-      statusEl.innerText = 'Generando consentimiento y enviando a GHL...';
+    async function syncToGHL(pName, pId, dName, sigImg, pPhone) {
+      const budget = calculateBudget();
+      const statusMsg = (t) => { const el = document.getElementById('status'); if (el) el.innerText = t; };
+      statusMsg('Generando consentimiento y enviando a GHL...');
 
-      // Mismo PDF que descarga el botón "Descargar PDF", esta vez
-      // como data URI para que el backend lo suba a GHL en vez de
-      // bajarlo al disco del paciente.
       const doc = buildClinicalPDF(pName, pId, dName, sigImg);
       const consentimientoPdfBase64 = doc.output('datauristring');
 
       const payload = {
-        source: 'Odontograma 3D Clínico',
+        source: 'Odontograma 3D Tablet',
         timestamp: new Date().toISOString(),
         paciente: {
           nombre: pName,
@@ -1694,539 +1846,91 @@
           doctor_tratante: dName,
           telefono: pPhone,
           consentimiento_aprobado: true,
+          alertas_medicas: medicalAlerts,
           firma_base64: sigImg,
           consentimiento_pdf_base64: consentimientoPdfBase64
         },
-        total_presupuesto: budgetData.total,
+        total_presupuesto: budget.total,
         moneda: 'CLP',
-        desglose: budgetData.items,
-        detalles_clinicos: {
-          registros_generales: clinicalRecords,
-          periodontograma: perioRecords,
-          cirugia: clinicalRecords,
-          odontopediatria: pediatricRecords,
-          ortodoncia: orthoRecords,
-          puentes: bridges
-        }
+        desglose: budget.items,
+        detalles_clinicos: { general: clinicalRecords, periodoncia: perioRecords, removible: removableRecords, oclusion: occlusionRecords, trauma: clinicalRecords, malposicion: clinicalRecords, estetica: esteticaRecords, ortodoncia: orthoRecords, puentes: bridges }
       };
 
       try {
         const res = await fetch(ODONTOGRAMA_WEBHOOK_URL, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Odontograma-Secret': ODONTOGRAMA_WEBHOOK_SECRET
-          },
+          headers: { 'Content-Type': 'application/json', 'X-Odontograma-Secret': ODONTOGRAMA_WEBHOOK_SECRET },
           body: JSON.stringify(payload)
         });
-
         const data = await res.json().catch(() => ({}));
         if (!res.ok) throw new Error(data.error || `Error HTTP ${res.status}`);
 
-        statusEl.innerText = 'Sincronizado con GHL con éxito.';
-        const smsTxt = data.sms_enviado ? 'Confirmación por SMS enviada.' : 'No se pudo enviar la confirmación por SMS (revisar en GHL).';
-        alert(`¡Consentimiento y Presupuesto de $${budgetData.total.toLocaleString('es-CL')} CLP enviados a GoHighLevel!\n\nContacto: ${data.contact_id || '(ver GHL)'}\nOportunidad: ${data.opportunity_id || '(ver GHL)'}\n${smsTxt}`);
+        statusMsg('Sincronizado con GHL con éxito.');
+        const smsTxt = data.sms_enviado ? 'Confirmación por SMS enviada.' : 'No se pudo enviar el SMS (revisar en GHL).';
+        alert(`¡Presupuesto de $${budget.total.toLocaleString('es-CL')} CLP enviado a GoHighLevel!\n\nContacto: ${data.contact_id || '(ver GHL)'}\n${smsTxt}`);
       } catch (err) {
         console.error('Error al sincronizar con GHL:', err);
-        statusEl.innerText = 'Error al sincronizar con GHL.';
-        alert(`No se pudo enviar a GHL: ${err.message}\n\nNada se perdió — puedes reintentar, o usar "Descargar PDF" como respaldo mientras se revisa la conexión.`);
+        statusMsg('Error al sincronizar con GHL.');
+        alert(`No se pudo enviar a GHL: ${err.message}\n\nNada se perdió — puedes reintentar, o usar "Guardar PDF" como respaldo.`);
       }
     }
 
+    // Interacción Táctil y Raycasting
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     let downPos = { x: 0, y: 0 };
 
-    window.addEventListener('pointerdown', (e) => {
-      downPos = { x: e.clientX, y: e.clientY };
-    });
-
+    window.addEventListener('pointerdown', (e) => { downPos = { x: e.clientX, y: e.clientY }; });
     window.addEventListener('pointerup', (e) => {
-      if (e.target.closest('#sidebar') || e.target.closest('#top-bar') || e.target.closest('#layer-bar') || e.target.closest('#consent-modal')) return;
-
-      const dist = Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y);
-      if (dist > 5) return;
+      if (e.target.closest('#specialty-rail') || e.target.closest('#top-bar') || e.target.closest('#bottom-sheet') || e.target.closest('#layer-floating-bar') || e.target.closest('.modal-overlay')) return;
+      if (Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y) > 6) return;
 
       mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
       mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
       raycaster.setFromCamera(mouse, camera);
 
-      let closestFdi = null;
-      let minDistance = Infinity;
-
+      let closestFdi = null, minDist = Infinity;
       const hitIntersects = raycaster.intersectObjects(hitBoxes.children);
       if (hitIntersects.length > 0) {
         closestFdi = hitIntersects[0].object.userData.fdi;
       } else {
         const meshIntersects = raycaster.intersectObjects(meshTargets, true);
         if (meshIntersects.length > 0) {
-          const hitPoint = meshIntersects[0].point;
+          const pt = meshIntersects[0].point;
           for (const [fdi, pos] of Object.entries(currentPositions)) {
-            const wPos = getToothWorldPos(pos);
-            const d = hitPoint.distanceTo(wPos);
-            if (d < minDistance) {
-              minDistance = d;
-              closestFdi = parseInt(fdi);
-            }
+            const d = pt.distanceTo(getToothWorldPos(pos));
+            if (d < minDist) { minDist = d; closestFdi = parseInt(fdi); }
           }
         }
       }
-
       if (closestFdi) selectTooth(closestFdi);
     });
 
     function selectTooth(fdi) {
       selectedTooth = fdi;
       document.getElementById('lbl-piece').innerText = fdi;
-
-      if (!perioRecords[selectedTooth]) {
-        perioRecords[selectedTooth] = {
-          depths: { mv: 2, v: 2, dv: 2, ml: 2, l: 2, dl: 2 },
-          recession: { mv: 0, v: 0, dv: 0, ml: 0, l: 0, dl: 0 },
-          bop: {},
-          movilidad: 0,
-          furca: 0
-        };
-      }
-
-      updateUIFaces();
-      updateUIPerio();
-      updateUIRestoration();
-      updateUIOrtho();
-      updateUIPediatric();
-      updateUISurgery();
-      renderClinicalPathologies();
-      renderPerioMarkers();
-      renderBridges();
-      renderOrtho();
-      renderPediatric();
-      renderSurgery();
-      calculateBudget();
+      document.getElementById('bottom-sheet').classList.remove('minimized');
+      updateUIState();
+      renderAllLayers();
     }
 
-    window.switchTab = function(tab) {
-      activeTab = tab;
-      const tabs = ['odonto', 'cirugia', 'perio', 'protesis', 'pediatria', 'ortho', 'budget'];
-      tabs.forEach(t => {
-        const btn = document.getElementById(`tab-${t}`);
-        const panel = document.getElementById(`panel-${t}`);
-        if (btn) btn.classList.toggle('active', t === tab);
-        if (panel) panel.style.display = (t === tab) ? 'block' : 'none';
-      });
-
-      renderPerioMarkers();
-      renderBridges();
-      renderOrtho();
-      renderPediatric();
-      renderSurgery();
-      if (tab === 'budget') calculateBudget();
-    };
-
-    window.setSurfaceMode = function(mode) {
-      surfaceDrawMode = mode;
-      document.getElementById('mode-caries').className = `btn-mode ${mode === 'caries' ? 'active-caries' : ''}`;
-      document.getElementById('mode-resina').className = `btn-mode ${mode === 'resina' ? 'active-resina' : ''}`;
-    };
-
-    window.toggleFace = function(faceKey) {
-      if (!selectedTooth) return;
-      if (!clinicalRecords[selectedTooth]) clinicalRecords[selectedTooth] = { faces: {} };
-      if (!clinicalRecords[selectedTooth].faces) clinicalRecords[selectedTooth].faces = {};
-
-      const current = clinicalRecords[selectedTooth].faces[faceKey];
-      if (current === surfaceDrawMode) {
-        delete clinicalRecords[selectedTooth].faces[faceKey];
-      } else {
-        clinicalRecords[selectedTooth].faces[faceKey] = surfaceDrawMode;
-      }
-
-      updateUIFaces();
-      renderClinicalPathologies();
-      calculateBudget();
-    };
-
-    window.setGeneralCondition = function(type) {
-      if (!selectedTooth) return;
-      if (!clinicalRecords[selectedTooth]) clinicalRecords[selectedTooth] = {};
-      clinicalRecords[selectedTooth].general = (clinicalRecords[selectedTooth].general === type) ? null : type;
-
-      updateUIFaces();
-      renderClinicalPathologies();
-      calculateBudget();
-    };
-
-    window.setRestorationCondition = function(type) {
-      if (!selectedTooth) return;
-      if (!clinicalRecords[selectedTooth]) clinicalRecords[selectedTooth] = {};
-      clinicalRecords[selectedTooth].restoration = (clinicalRecords[selectedTooth].restoration === type) ? null : type;
-
-      updateUIRestoration();
-      renderClinicalPathologies();
-      calculateBudget();
-    };
-
-    window.setPediatricCondition = function(type) {
-      if (!selectedTooth) return;
-      if (!clinicalRecords[selectedTooth]) clinicalRecords[selectedTooth] = {};
-      clinicalRecords[selectedTooth].pediatric = (clinicalRecords[selectedTooth].pediatric === type) ? null : type;
-
-      updateUIPediatric();
-      renderPediatric();
-      calculateBudget();
-    };
-
-    window.setSurgCondition = function(type) {
-      if (!selectedTooth) return;
-      if (!clinicalRecords[selectedTooth]) clinicalRecords[selectedTooth] = {};
-      clinicalRecords[selectedTooth].surgery = (clinicalRecords[selectedTooth].surgery === type) ? null : type;
-
-      updateUISurgery();
-      renderSurgery();
-      calculateBudget();
-    };
-
-    function updateUISurgery() {
-      const surgs = ['exodoncia', 'impactado', 'lesion', 'perno'];
-      surgs.forEach(s => {
-        const btn = document.getElementById(`btn-surg-${s}`);
-        if (btn) btn.classList.remove('active');
-      });
-
-      if (selectedTooth && clinicalRecords[selectedTooth]) {
-        const cur = clinicalRecords[selectedTooth].surgery;
-        if (cur) {
-          const btn = document.getElementById(`btn-surg-${cur}`);
-          if (btn) btn.classList.add('active');
-        }
-      }
-    }
-
-    window.applyFluorToArch = function() {
-      pediatricRecords[currentArch].fluorArch = !pediatricRecords[currentArch].fluorArch;
-      updateUIPediatric();
-      renderPediatric();
-      calculateBudget();
-    };
-
-    function updateUIPediatric() {
-      const peds = ['sellante', 'fluor', 'pulpotomia', 'pulpectomia', 'mantenedor'];
-      peds.forEach(p => {
-        const btn = document.getElementById(`btn-ped-${p}`);
-        if (btn) btn.classList.remove('active');
-      });
-
-      if (selectedTooth && clinicalRecords[selectedTooth]) {
-        const cur = clinicalRecords[selectedTooth].pediatric;
-        if (cur) {
-          const btn = document.getElementById(`btn-ped-${cur}`);
-          if (btn) btn.classList.add('active');
-        }
-      }
-
-      const btnFluorArch = document.getElementById('btn-fluor-arch');
-      if (btnFluorArch) {
-        const active = pediatricRecords[currentArch] && pediatricRecords[currentArch].fluorArch;
-        btnFluorArch.classList.toggle('active', active);
-        btnFluorArch.innerText = active ? '✅ Flúor Arcada Aplicado' : '✨ Aplicar Flúor Arcada Completa';
-      }
-    }
-
-    function updateUIRestoration() {
-      const rests = ['inlay', 'onlay', 'overlay', 'carilla'];
-      rests.forEach(r => {
-        const btn = document.getElementById(`btn-${r}`);
-        if (btn) btn.classList.remove('active');
-      });
-
-      if (!selectedTooth || !clinicalRecords[selectedTooth]) return;
-      const cur = clinicalRecords[selectedTooth].restoration;
-      if (cur) {
-        const btn = document.getElementById(`btn-${cur}`);
-        if (btn) btn.classList.add('active');
-      }
-    }
-
-    window.setOrthoPiece = function(type) {
-      if (!selectedTooth) return;
-      const currentOrtho = orthoRecords[currentArch];
-      if (type === null) {
-        delete currentOrtho.brackets[selectedTooth];
-      } else {
-        currentOrtho.brackets[selectedTooth] = type;
-      }
-      updateUIOrtho();
-      renderOrtho();
-      calculateBudget();
-    };
-
-    window.setWireType = function(wireType) {
-      orthoRecords[currentArch].wire = wireType;
-      updateUIOrtho();
-      renderOrtho();
-      calculateBudget();
-    };
-
-    window.applyOrthoToFullArch = function(type) {
-      const currentOrtho = orthoRecords[currentArch];
-      currentOrtho.brackets = {};
-
-      if (type) {
-        Object.keys(currentPositions).forEach(fdi => {
-          const num = parseInt(fdi);
-          const isMolar = (num % 10 === 6 || num % 10 === 7 || num % 10 === 8);
-          currentOrtho.brackets[fdi] = isMolar ? 'tubo' : type;
-        });
-        currentOrtho.wire = 'niti';
-      } else {
-        currentOrtho.wire = 'none';
-      }
-
-      updateUIOrtho();
-      renderOrtho();
-      calculateBudget();
-    };
-
-    function updateUIOrtho() {
-      const curOrtho = orthoRecords[currentArch];
-      const bType = selectedTooth ? curOrtho.brackets[selectedTooth] : null;
-
-      const brkBtns = ['metal', 'zafiro', 'tubo'];
-      brkBtns.forEach(b => {
-        const btn = document.getElementById(`btn-brk-${b}`);
-        if (btn) btn.classList.toggle('active', b === bType);
-      });
-      const btnNone = document.getElementById('btn-brk-none');
-      if (btnNone) btnNone.classList.toggle('active', !bType);
-
-      ['none', 'niti', 'estetico'].forEach(w => {
-        const btn = document.getElementById(`wire-${w}`);
-        if (btn) {
-          const isActive = (curOrtho.wire === w);
-          btn.style.background = isActive ? '#0284c7' : '#1e293b';
-          btn.style.color = isActive ? '#fff' : '#cbd5e1';
-        }
-      });
-    }
-
-    window.handleBridgeButton = function() {
-      if (!selectedTooth) {
-        alert('Por favor selecciona primero una pieza dental en 3D para ser el pilar inicial.');
-        return;
-      }
-
-      const helperLbl = document.getElementById('bridge-helper-lbl');
-      const actionBtn = document.getElementById('btn-bridge-action');
-
-      if (!bridgeStartTooth) {
-        bridgeStartTooth = selectedTooth;
-        helperLbl.innerText = `Pilar inicial: Pieza ${bridgeStartTooth}. Ahora selecciona la pieza final en el 3D.`;
-        actionBtn.innerText = '🔗 Confirmar Unión con Pieza Actual';
-        actionBtn.style.background = '#0284c7';
-      } else {
-        if (bridgeStartTooth === selectedTooth) {
-          alert('El pilar final debe ser un diente diferente al inicial.');
-          return;
-        }
-
-        bridges.push({ start: bridgeStartTooth, end: selectedTooth, arch: currentArch });
-        bridgeStartTooth = null;
-        helperLbl.innerText = '¡Puente registrado con éxito!';
-        actionBtn.innerText = '🌉 Iniciar Trazado de Puente';
-        actionBtn.style.background = '#d97706';
-
-        updateBridgeListUI();
-        renderBridges();
-        calculateBudget();
-      }
-    };
-
-    function updateBridgeListUI() {
-      const container = document.getElementById('bridge-list-container');
-      container.innerHTML = '';
-
-      bridges.filter(b => b.arch === currentArch).forEach((b, idx) => {
-        const item = document.createElement('div');
-        item.style.cssText = 'background:#0f172a; padding:6px 10px; border-radius:6px; font-size:11px; display:flex; justify-content:space-between; align-items:center; border:1px solid #334155;';
-        item.innerHTML = `<span>🌉 Puente: <b>${b.start} ➔ ${b.end}</b></span> <button onclick="removeBridge(${idx})" style="background:#dc2626; color:#fff; border:none; padding:2px 6px; border-radius:4px; cursor:pointer; font-size:10px;">Eliminar</button>`;
-        container.appendChild(item);
-      });
-    }
-
-    window.removeBridge = function(index) {
-      bridges.splice(index, 1);
-      updateBridgeListUI();
-      renderBridges();
-      calculateBudget();
-    };
-
-    window.updatePerioValue = function(category, site, val) {
-      if (!selectedTooth) return;
-      if (!perioRecords[selectedTooth]) {
-        perioRecords[selectedTooth] = { depths: {}, recession: {}, bop: {}, movilidad: 0, furca: 0 };
-      }
-      if (!perioRecords[selectedTooth][category]) perioRecords[selectedTooth][category] = {};
-
-      perioRecords[selectedTooth][category][site] = parseInt(val) || 0;
-      renderPerioMarkers();
-    };
-
-    window.toggleBOP = function(site) {
-      if (!selectedTooth) return;
-      if (!perioRecords[selectedTooth]) {
-        perioRecords[selectedTooth] = { depths: {}, recession: {}, bop: {}, movilidad: 0, furca: 0 };
-      }
-      if (!perioRecords[selectedTooth].bop) perioRecords[selectedTooth].bop = {};
-
-      perioRecords[selectedTooth].bop[site] = !perioRecords[selectedTooth].bop[site];
-      updateUIPerio();
-      renderPerioMarkers();
-    };
-
-    window.setMovilidad = function(grade) {
-      if (!selectedTooth) return;
-      if (!perioRecords[selectedTooth]) {
-        perioRecords[selectedTooth] = { depths: {}, recession: {}, bop: {}, movilidad: 0, furca: 0 };
-      }
-      perioRecords[selectedTooth].movilidad = grade;
-      updateUIPerio();
-      renderPerioMarkers();
-    };
-
-    window.setFurca = function(grade) {
-      if (!selectedTooth) return;
-      if (!perioRecords[selectedTooth]) {
-        perioRecords[selectedTooth] = { depths: {}, recession: {}, bop: {}, movilidad: 0, furca: 0 };
-      }
-      perioRecords[selectedTooth].furca = grade;
-      updateUIPerio();
-      renderPerioMarkers();
-    };
-
-    function updateUIPerio() {
-      const sites = ['mv', 'v', 'dv', 'ml', 'l', 'dl'];
-      sites.forEach(s => {
-        const psInp = document.getElementById(`ps-${s}`);
-        const recInp = document.getElementById(`rec-${s}`);
-        const btn = document.getElementById(`bop-${s}`);
-        if (psInp) psInp.value = 2;
-        if (recInp) recInp.value = 0;
-        if (btn) btn.className = 'perio-check-btn';
-      });
-
-      [0, 1, 2, 3].forEach(g => {
-        const mMov = document.getElementById(`mov-${g}`);
-        if (mMov) mMov.className = `opt-btn ${g === 0 ? 'active-mov' : ''}`;
-      });
-
-      if (!selectedTooth || !perioRecords[selectedTooth]) return;
-
-      const pRec = perioRecords[selectedTooth];
-
-      if (pRec.depths) {
-        for (const [s, val] of Object.entries(pRec.depths)) {
-          const inp = document.getElementById(`ps-${s}`);
-          if (inp) inp.value = val;
-        }
-      }
-
-      if (pRec.recession) {
-        for (const [s, val] of Object.entries(pRec.recession)) {
-          const inp = document.getElementById(`rec-${s}`);
-          if (inp) inp.value = val;
-        }
-      }
-
-      if (pRec.bop) {
-        for (const [s, has] of Object.entries(pRec.bop)) {
-          const btn = document.getElementById(`bop-${s}`);
-          if (btn && has) btn.classList.add('active-bop');
-        }
-      }
-
-      if (pRec.movilidad !== undefined) {
-        [0, 1, 2, 3].forEach(g => {
-          const mBtn = document.getElementById(`mov-${g}`);
-          if (mBtn) mBtn.classList.toggle('active-mov', g === pRec.movilidad);
-        });
-      }
-
-      [0, 1, 2, 3].forEach(g => {
-        const fBtn = document.getElementById(`furca-${g}`);
-        if (fBtn) {
-          fBtn.className = 'opt-btn';
-          if (g === pRec.furca) {
-            if (g === 0) { fBtn.style.background = '#475569'; fBtn.style.color = '#fff'; }
-            if (g === 1) { fBtn.style.background = '#eab308'; fBtn.style.color = '#000'; }
-            if (g === 2) { fBtn.style.background = '#f97316'; fBtn.style.color = '#fff'; }
-            if (g === 3) { fBtn.style.background = '#dc2626'; fBtn.style.color = '#fff'; }
-          } else {
-            fBtn.style.background = '#1e293b';
-            fBtn.style.color = '#cbd5e1';
-          }
-        }
-      });
-    }
-
-    function updateUIFaces() {
-      const faces = ['v', 'm', 'o', 'd', 'l'];
-      faces.forEach(f => {
-        const el = document.getElementById(`face-${f}`);
-        if (el) el.className = 'cross-cell';
-      });
-
-      const buttons = ['corona', 'endodoncia', 'implante', 'ausente'];
-      buttons.forEach(b => {
-        const btn = document.getElementById(`btn-${b}`);
-        if (btn) btn.classList.remove('active');
-      });
-
-      if (!selectedTooth || !clinicalRecords[selectedTooth]) return;
-
-      const rec = clinicalRecords[selectedTooth];
-      if (rec.faces) {
-        for (const [f, state] of Object.entries(rec.faces)) {
-          const el = document.getElementById(`face-${f.toLowerCase()}`);
-          if (el) el.classList.add(`active-${state}`);
-        }
-      }
-
-      if (rec.general) {
-        const btn = document.getElementById(`btn-${rec.general}`);
-        if (btn) btn.classList.add('active');
-      }
-    }
-
-    window.setDentitionMode = function(mode) {
-      currentMode = mode;
-      document.getElementById('btn-mode-adult').classList.toggle('active', mode === 'adult');
-      document.getElementById('btn-mode-temp').classList.toggle('active', mode === 'temporal');
+    window.setDentitionMode = function(m) {
+      currentMode = m;
+      document.getElementById('btn-mode-adult').classList.toggle('active', m === 'adult');
+      document.getElementById('btn-mode-temp').classList.toggle('active', m === 'temporal');
       selectedTooth = null;
       document.getElementById('lbl-piece').innerText = 'Ninguna';
-      updateUIFaces();
-      updateUIPerio();
-      updateUIRestoration();
-      updateUIOrtho();
-      updateUIPediatric();
-      updateUISurgery();
       loadArchData();
     };
 
-    window.setArch = function(arch) {
-      currentArch = arch;
-      document.getElementById('btn-arch-inf').classList.toggle('active', arch === 'inferior');
-      document.getElementById('btn-arch-sup').classList.toggle('active', arch === 'superior');
-      document.getElementById('face-l').innerText = arch === 'inferior' ? 'L' : 'P';
-      document.getElementById('lbl-perio-pal').innerText = arch === 'inferior' ? 'Lingual' : 'Palatino';
+    window.setArch = function(a) {
+      currentArch = a;
+      document.getElementById('btn-arch-inf').classList.toggle('active', a === 'inferior');
+      document.getElementById('btn-arch-sup').classList.toggle('active', a === 'superior');
+      document.getElementById('face-l').innerText = a === 'inferior' ? 'L' : 'P';
+      document.getElementById('lbl-perio-pal-sec').innerText = a === 'inferior' ? 'Lingual (PS / REC / BOP)' : 'Palatino (PS / REC / BOP)';
       selectedTooth = null;
       document.getElementById('lbl-piece').innerText = 'Ninguna';
-      updateUIFaces();
-      updateUIPerio();
-      updateUIRestoration();
-      updateUIOrtho();
-      updateUIPediatric();
-      updateUISurgery();
-      updateBridgeListUI();
       loadArchData();
     };
 
