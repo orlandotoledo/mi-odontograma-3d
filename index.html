@@ -412,6 +412,7 @@
   <div id="specialty-rail">
     <button class="rail-btn active" id="rail-odonto" onclick="switchSpecialty('odonto')">🦷<span>General</span></button>
     <button class="rail-btn" id="rail-cirugia" onclick="switchSpecialty('cirugia')">🔪<span>Cirugía</span></button>
+    <button class="rail-btn" id="rail-endo" onclick="switchSpecialty('endo')">🦷<span>Endo.</span></button>
     <button class="rail-btn" id="rail-perio" onclick="switchSpecialty('perio')">📏<span>Perio</span></button>
     <button class="rail-btn" id="rail-protesis" onclick="switchSpecialty('protesis')">🌉<span>Fija</span></button>
     <button class="rail-btn" id="rail-removible" onclick="switchSpecialty('removible')">🌸<span>PPR</span></button>
@@ -469,6 +470,32 @@
         <button class="action-touch-btn" id="btn-surg-lesion" onclick="setSurgCondition('lesion')">🔴 Quiste/Ápice</button>
       </div>
       <button class="action-touch-btn" id="btn-surg-perno" style="width:100%;" onclick="setSurgCondition('perno')">📍 Perno / Muñón Colado</button>
+
+      <div class="section-lbl" style="margin-top:14px;">Cirugía Maxilofacial / Implantología Avanzada</div>
+      <div class="grid-2col">
+        <button class="action-touch-btn" id="btn-surg-bloque" onclick="setSurgCondition('bloque')">🦴 Injerto en Bloque</button>
+        <button class="action-touch-btn" id="btn-surg-seno" onclick="setSurgCondition('seno')">🎈 Elevación de Seno</button>
+      </div>
+      <button class="action-touch-btn" id="btn-surg-rog" style="width:100%;" onclick="setSurgCondition('rog')">🔧 ROG (Regeneración Ósea Guiada)</button>
+    </div>
+
+    <div id="panel-endo" style="display: none;">
+      <div class="section-lbl" id="endo-molar-sup-lbl">Conductos — Molar Superior</div>
+      <div class="grid-3col" id="endo-molar-sup">
+        <button class="action-touch-btn" id="btn-canal-mv" onclick="toggleCanal('mv')">MV</button>
+        <button class="action-touch-btn" id="btn-canal-dv" onclick="toggleCanal('dv')">DV</button>
+        <button class="action-touch-btn" id="btn-canal-p" onclick="toggleCanal('p')">P</button>
+      </div>
+      <div class="section-lbl" id="endo-molar-inf-lbl">Conductos — Molar Inferior</div>
+      <div class="grid-2col" id="endo-molar-inf">
+        <button class="action-touch-btn" id="btn-canal-mesial" onclick="toggleCanal('mesial')">Mesial</button>
+        <button class="action-touch-btn" id="btn-canal-distal" onclick="toggleCanal('distal')">Distal</button>
+      </div>
+      <div class="section-lbl" id="endo-unico-lbl">Conducto Único</div>
+      <button class="action-touch-btn" id="btn-canal-unico" style="width:100%;" onclick="toggleCanal('unico')">🦷 Conducto Único</button>
+
+      <div class="section-lbl" style="margin-top:14px;">Obturación Apical</div>
+      <button class="action-touch-btn" id="btn-endo-obturacion" style="width:100%;" onclick="cycleObturacion()">📏 Estado: <b id="lbl-endo-obturacion">Sin Preparar</b></button>
     </div>
 
     <!-- 3. Periodoncia Completa (6 Sitios) -->
@@ -558,6 +585,15 @@
         <button class="action-touch-btn" id="btn-occ-f3" onclick="setFacetCondition(3)">Sev (III)</button>
       </div>
       <button class="action-touch-btn" id="btn-splint-arch" style="width:100%;" onclick="toggleSplintArch()">🛡️ Férula Miorrelajante</button>
+
+      <div class="section-lbl" style="margin-top:14px;">ATM — Evaluación Rápida</div>
+      <div class="grid-2col">
+        <button class="action-touch-btn" id="btn-atm-click-izq" onclick="toggleATM('click_izq')">🔊 Chasquido Izq.</button>
+        <button class="action-touch-btn" id="btn-atm-click-der" onclick="toggleATM('click_der')">🔊 Chasquido Der.</button>
+        <button class="action-touch-btn" id="btn-atm-dolor-izq" onclick="toggleATM('dolor_izq')">😣 Dolor Palpación Izq.</button>
+        <button class="action-touch-btn" id="btn-atm-dolor-der" onclick="toggleATM('dolor_der')">😣 Dolor Palpación Der.</button>
+      </div>
+      <button class="action-touch-btn" id="btn-atm-desviacion" style="width:100%;" onclick="cycleATMDeviation()">↕️ Desviación Apertura: <b id="lbl-atm-desviacion">Ninguna</b></button>
     </div>
 
     <!-- 7. Traumatología -->
@@ -719,7 +755,12 @@
       malposicion_correccion: 35000, blanqueamiento_arcada: 140000, plano_miorrelajante: 150000,
       rehabilitacion_faceta: 45000, bracket_metal: 25000, bracket_zafiro: 45000, arco_orto: 35000,
       sellante: 22000, fluor_focal: 18000, fluor_arcada: 35000, pulpotomia: 75000, pulpectomia: 95000,
-      mantenedor: 110000, exodoncia: 50000, impactado: 120000, lesion_apicectomia: 90000, perno_munon: 85000
+      mantenedor: 110000, exodoncia: 50000, impactado: 120000, lesion_apicectomia: 90000,
+      lesion: 90000, perno_munon: 85000,
+      // Cirugía Maxilofacial / Implantología Avanzada
+      bloque: 550000, seno: 480000, rog: 320000,
+      // Endodoncia Avanzada — precio según sea uni o multirradicular
+      endo_unico: 140000, endo_molar: 220000
     };
 
     const VITA_COLORS = {
@@ -753,6 +794,10 @@
     const perioRecords = {};
     const removableRecords = { inferior: { type: null, retainers: [] }, superior: { type: null, retainers: [] } };
     const occlusionRecords = { inferior: { splint: false, facets: {} }, superior: { splint: false, facets: {} } };
+    // ATM no es por diente ni por arcada — es una evaluación del
+    // paciente, bilateral (izq/der), independiente de qué arcada
+    // esté viendo el visor en este momento.
+    const atmRecords = { click_izq: false, click_der: false, dolor_izq: false, dolor_der: false, desviacion: null };
     const esteticaRecords = { inferior: { bleaching: false, shades: {} }, superior: { bleaching: false, shades: {} } };
     const pediatricRecords = { inferior: { fluorArch: false }, superior: { fluorArch: false } };
     const orthoRecords = { inferior: { brackets: {}, wire: 'none' }, superior: { brackets: {}, wire: 'none' } };
@@ -805,8 +850,9 @@
     const orthoGroup = new THREE.Group();
     const pediatricGroup = new THREE.Group();
     const surgeryGroup = new THREE.Group();
+    const endoGroup = new THREE.Group();
 
-    scene.add(hitBoxes, pathologiesGroup, perioGroup, bridgesGroup, removableGroup, occlusionGroup, traumaGroup, malpositionGroup, esteticaGroup, orthoGroup, pediatricGroup, surgeryGroup);
+    scene.add(hitBoxes, pathologiesGroup, perioGroup, bridgesGroup, removableGroup, occlusionGroup, traumaGroup, malpositionGroup, esteticaGroup, orthoGroup, pediatricGroup, surgeryGroup, endoGroup);
 
     const layerVisibility = {
       general: true, surgery: true, perio: true, bridges: true,
@@ -819,7 +865,7 @@
       const active = layerVisibility[layerKey];
       document.getElementById(`layer-${layerKey}`)?.classList.toggle('active', active);
 
-      if (layerKey === 'general') pathologiesGroup.visible = active;
+      if (layerKey === 'general') { pathologiesGroup.visible = active; endoGroup.visible = active; }
       if (layerKey === 'surgery') surgeryGroup.visible = active;
       if (layerKey === 'perio') perioGroup.visible = active;
       if (layerKey === 'bridges') bridgesGroup.visible = active;
@@ -847,9 +893,9 @@
 
     window.switchSpecialty = function(specKey) {
       activeSpecialty = specKey;
-      const specialties = ['odonto', 'cirugia', 'perio', 'protesis', 'removible', 'occlusion', 'trauma', 'malposition', 'estetica', 'pediatria', 'ortho'];
+      const specialties = ['odonto', 'cirugia', 'endo', 'perio', 'protesis', 'removible', 'occlusion', 'trauma', 'malposition', 'estetica', 'pediatria', 'ortho'];
       const specNames = {
-        odonto: 'Odontología General', cirugia: 'Cirugía Oral', perio: 'Periodoncia',
+        odonto: 'Odontología General', cirugia: 'Cirugía Oral', endo: 'Endodoncia Avanzada', perio: 'Periodoncia',
         protesis: 'Prótesis Fija', removible: 'Prótesis Removible', occlusion: 'Oclusión y ATM',
         trauma: 'Trauma y Fracturas', malposition: 'Malposición y Eje', estetica: 'Color VITA',
         pediatria: 'Odontopediatría', ortho: 'Ortodoncia'
@@ -1012,6 +1058,7 @@
     function renderAllLayers() {
       renderClinicalPathologies();
       renderSurgery();
+      renderEndoAdvanced();
       renderPerioMarkers();
       renderBridges();
       renderRemovable();
@@ -1060,10 +1107,29 @@
             canal.position.set(p.x, p.y - (yDir * 0.02), p.z);
             pathologiesGroup.add(canal);
           }
-          if (rec.restoration) {
-            const rest = new THREE.Mesh(new THREE.SphereGeometry(0.055, 14, 14), new THREE.MeshBasicMaterial({ color: itemColor, depthTest: false }));
-            rest.position.set(p.x, p.y + (yDir * 0.02), p.z);
-            pathologiesGroup.add(rest);
+          if (rec.restoration === 'inlay') {
+            const box = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.03, 0.05), new THREE.MeshBasicMaterial({ color: itemColor, depthTest: false }));
+            box.position.set(p.x, p.y + (yDir * 0.015), p.z);
+            pathologiesGroup.add(box);
+          }
+          if (rec.restoration === 'onlay') {
+            const box = new THREE.Mesh(new THREE.BoxGeometry(0.065, 0.04, 0.065), new THREE.MeshBasicMaterial({ color: itemColor, depthTest: false }));
+            box.position.set(p.x, p.y + (yDir * 0.02), p.z);
+            pathologiesGroup.add(box);
+          }
+          if (rec.restoration === 'overlay') {
+            const box = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.05, 0.08), new THREE.MeshBasicMaterial({ color: itemColor, depthTest: false }));
+            box.position.set(p.x, p.y + (yDir * 0.025), p.z);
+            pathologiesGroup.add(box);
+          }
+          if (rec.restoration === 'carilla') {
+            // Carilla: restauración de cara vestibular (frontal), no
+            // oclusal — por eso va desplazada hacia adelante (mismo
+            // offset 'V' que usan las marcas de cara) y no centrada
+            // ni con volumen como las incrustaciones.
+            const veneer = new THREE.Mesh(new THREE.BoxGeometry(0.055, 0.09, 0.012), new THREE.MeshBasicMaterial({ color: itemColor, depthTest: false }));
+            veneer.position.set(p.x, p.y, p.z + 0.058);
+            pathologiesGroup.add(veneer);
           }
           if (rec.faces) {
             const isRight = parseInt(fdi) < 20 || (parseInt(fdi) >= 40 && parseInt(fdi) < 60) || parseInt(fdi) >= 80;
@@ -1124,6 +1190,50 @@
           const post = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.008, 0.14, 10), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.85, depthTest: false }));
           post.position.set(p.x, p.y + (yDir * 0.015), p.z);
           surgeryGroup.add(post);
+        }
+        if (rec.surgery === 'bloque') {
+          const block = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.05, 0.07), new THREE.MeshStandardMaterial({ color: 0xd6a35c, depthTest: false }));
+          block.position.set(p.x, p.y - (yDir * 0.16), p.z);
+          surgeryGroup.add(block);
+        }
+        if (rec.surgery === 'seno') {
+          const dome = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.55, depthTest: false }));
+          dome.position.set(p.x, p.y - (yDir * 0.22), p.z);
+          dome.rotation.x = currentArch === 'superior' ? 0 : Math.PI;
+          surgeryGroup.add(dome);
+        }
+        if (rec.surgery === 'rog') {
+          const membrane = new THREE.Mesh(new THREE.CircleGeometry(0.07, 16), new THREE.MeshBasicMaterial({ color: 0xf472b6, transparent: true, opacity: 0.5, depthTest: false, side: THREE.DoubleSide }));
+          membrane.position.set(p.x, p.y - (yDir * 0.12), p.z);
+          membrane.rotation.x = Math.PI / 2;
+          surgeryGroup.add(membrane);
+        }
+      }
+    }
+
+    // Endodoncia Avanzada — un punto por conducto marcado, coloreado
+    // según el avance de la obturación (mismo lenguaje de color que
+    // el resto del sistema: rojo = falta, azul = en curso, verde =
+    // terminado). Los puntos se separan un poco entre sí para que no
+    // se superpongan cuando hay varios conductos en un mismo diente.
+    function renderEndoAdvanced() {
+      while (endoGroup.children.length > 0) endoGroup.remove(endoGroup.children[0]);
+      const yDir = currentArch === 'superior' ? -1 : 1;
+      const obtColor = { sin_preparar: 0xdc2626, preparado: 0x2563eb, obturado: 0x16a34a };
+      const canalOffsets = { mv: [-0.025, 0.02], dv: [0.025, 0.02], p: [0, -0.025], mesial: [-0.025, 0], distal: [0.025, 0], unico: [0, 0] };
+
+      for (const [fdi, pos] of Object.entries(currentPositions)) {
+        const rec = clinicalRecords[fdi];
+        if (!rec || !rec.canales) continue;
+        const p = getToothWorldPos(pos);
+        const color = obtColor[rec.endo_obturacion || 'sin_preparar'];
+
+        for (const [canal, marcado] of Object.entries(rec.canales)) {
+          if (!marcado) continue;
+          const [ox, oz] = canalOffsets[canal] || [0, 0];
+          const dot = new THREE.Mesh(new THREE.SphereGeometry(0.018, 10, 10), new THREE.MeshBasicMaterial({ color, depthTest: false }));
+          dot.position.set(p.x + ox, p.y - (yDir * 0.04), p.z + oz);
+          endoGroup.add(dot);
         }
       }
     }
@@ -1406,6 +1516,12 @@
           const diag = Object.values(rec.faces).filter(s => s !== 'existente').length;
           if (diag > 0) { const sub = diag * ARANCELES.resina; items.push({ item: `Pz ${fdi}: Resina (${diag} caras)`, price: sub }); total += sub; }
         }
+        if (rec.canales && Object.values(rec.canales).some(v => v)) {
+          const esMolar = getToothType(parseInt(fdi)) !== 'unico';
+          const price = esMolar ? ARANCELES.endo_molar : ARANCELES.endo_unico;
+          items.push({ item: `Pz ${fdi}: Endodoncia ${esMolar ? 'Multirradicular' : 'Unirradicular'}`, price });
+          total += price;
+        }
       }
 
       ['inferior', 'superior'].forEach(archKey => {
@@ -1525,6 +1641,60 @@
       updateUIState();
       renderAllLayers();
       calculateBudget();
+    };
+
+    // Endodoncia Avanzada — qué raíces/conductos tiene un diente
+    // depende de su anatomía. Simplificación clínica deliberada: la
+    // diferenciación por raíz (MV/DV/P vs Mesial/Distal) solo aplica
+    // a molares permanentes — premolares y anteriores casi siempre
+    // son uniradiculares, así que van con "Conducto Único". Los
+    // molares deciduos (cuadrante 5-8) también caen en "Único" acá:
+    // su endodoncia (pulpotomía/pulpectomía) ya se registra aparte
+    // en el panel de Odontopediatría, no se duplica acá.
+    function getToothType(fdi) {
+      const cuadrante = Math.floor(fdi / 10);
+      const posicion = fdi % 10;
+      const esSuperior = [1, 2, 5, 6].includes(cuadrante);
+      const esPermanente = cuadrante >= 1 && cuadrante <= 4;
+      if (esPermanente && posicion >= 6) return esSuperior ? 'molar_sup' : 'molar_inf';
+      return 'unico';
+    }
+
+    window.toggleCanal = function(canal) {
+      if (!selectedTooth) return;
+      if (!clinicalRecords[selectedTooth]) clinicalRecords[selectedTooth] = {};
+      if (!clinicalRecords[selectedTooth].canales) clinicalRecords[selectedTooth].canales = {};
+      clinicalRecords[selectedTooth].canales[canal] = !clinicalRecords[selectedTooth].canales[canal];
+      clinicalRecords[selectedTooth].status = currentClinicalState;
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
+    window.cycleObturacion = function() {
+      if (!selectedTooth) return;
+      if (!clinicalRecords[selectedTooth]) clinicalRecords[selectedTooth] = {};
+      const orden = ['sin_preparar', 'preparado', 'obturado'];
+      const actual = clinicalRecords[selectedTooth].endo_obturacion || 'sin_preparar';
+      const idx = orden.indexOf(actual);
+      clinicalRecords[selectedTooth].endo_obturacion = orden[(idx + 1) % orden.length];
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
+    // ATM — evaluación rápida bilateral, no depende de selectedTooth
+    window.toggleATM = function(campo) {
+      atmRecords[campo] = !atmRecords[campo];
+      document.getElementById(`btn-atm-${campo.replace('_', '-')}`)?.classList.toggle('active', atmRecords[campo]);
+    };
+
+    window.cycleATMDeviation = function() {
+      const orden = [null, 'izquierda', 'derecha'];
+      const idx = orden.indexOf(atmRecords.desviacion);
+      atmRecords.desviacion = orden[(idx + 1) % orden.length];
+      const d = atmRecords.desviacion;
+      document.getElementById('lbl-atm-desviacion').innerText = d === 'izquierda' ? 'Hacia Izquierda' : d === 'derecha' ? 'Hacia Derecha' : 'Ninguna';
     };
 
     window.setRestorationCondition = function(t) {
@@ -1697,9 +1867,31 @@
       ['corona', 'endodoncia', 'implante', 'ausente'].forEach(b => {
         document.getElementById(`btn-${b}`)?.classList.toggle('active', cur?.general === b);
       });
-      ['exodoncia', 'resto', 'impactado', 'lesion', 'perno'].forEach(b => {
+      ['exodoncia', 'resto', 'impactado', 'lesion', 'perno', 'bloque', 'seno', 'rog'].forEach(b => {
         document.getElementById(`btn-surg-${b}`)?.classList.toggle('active', cur?.surgery === b);
       });
+
+      // Endodoncia Avanzada — qué sección de conductos mostrar depende
+      // de la anatomía del diente seleccionado (molar sup/inf tienen
+      // raíces distintas; premolares y anteriores van con conducto
+      // único). getToothType() decide según el FDI.
+      if (selectedTooth) {
+        const tType = getToothType(selectedTooth);
+        document.getElementById('endo-molar-sup').style.display = tType === 'molar_sup' ? 'grid' : 'none';
+        document.getElementById('endo-molar-sup-lbl').style.display = tType === 'molar_sup' ? 'block' : 'none';
+        document.getElementById('endo-molar-inf').style.display = tType === 'molar_inf' ? 'grid' : 'none';
+        document.getElementById('endo-molar-inf-lbl').style.display = tType === 'molar_inf' ? 'block' : 'none';
+        document.getElementById('endo-unico-lbl').style.display = tType === 'unico' ? 'block' : 'none';
+        document.getElementById('btn-canal-unico').style.display = tType === 'unico' ? 'block' : 'none';
+
+        const canales = cur?.canales || {};
+        ['mv', 'dv', 'p', 'mesial', 'distal', 'unico'].forEach(c => {
+          document.getElementById(`btn-canal-${c}`)?.classList.toggle('active', !!canales[c]);
+        });
+        const obtLabels = { sin_preparar: 'Sin Preparar', preparado: 'Conductometría Lista', obturado: 'Obturado' };
+        document.getElementById('lbl-endo-obturacion').innerText = obtLabels[cur?.endo_obturacion || 'sin_preparar'];
+      }
+
       ['inlay', 'onlay', 'overlay', 'carilla'].forEach(b => {
         document.getElementById(`btn-${b}`)?.classList.toggle('active', cur?.restoration === b);
       });
@@ -1870,7 +2062,7 @@
         total_presupuesto: budget.total,
         moneda: 'CLP',
         desglose: budget.items,
-        detalles_clinicos: { general: clinicalRecords, periodoncia: perioRecords, removible: removableRecords, oclusion: occlusionRecords, trauma: clinicalRecords, malposicion: clinicalRecords, estetica: esteticaRecords, ortodoncia: orthoRecords, puentes: bridges }
+        detalles_clinicos: { general: clinicalRecords, periodoncia: perioRecords, removible: removableRecords, oclusion: occlusionRecords, atm: atmRecords, trauma: clinicalRecords, malposicion: clinicalRecords, estetica: esteticaRecords, ortodoncia: orthoRecords, puentes: bridges }
       };
 
       try {
