@@ -456,6 +456,7 @@
         <button class="action-touch-btn" id="btn-implante" onclick="setGeneralCondition('implante')">🔩 Implante</button>
         <button class="action-touch-btn" id="btn-ausente" onclick="setGeneralCondition('ausente')">❌ Ausente</button>
       </div>
+      <button class="action-touch-btn" id="btn-clear-piece" onclick="clearGeneralRecord()" style="width:100%; margin-top:8px; background:rgba(239,68,68,0.12); border-color:#ef4444; color:#ef4444;">🗑️ Borrar Pieza</button>
     </div>
 
     <!-- 2. Cirugía Oral -->
@@ -1495,6 +1496,22 @@
       if (!clinicalRecords[selectedTooth]) clinicalRecords[selectedTooth] = {};
       clinicalRecords[selectedTooth].general = (clinicalRecords[selectedTooth].general === t) ? null : t;
       clinicalRecords[selectedTooth].status = currentClinicalState;
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
+    // Borra TODO lo marcado en Odontología General para la pieza
+    // seleccionada (caras + condición general) de una sola vez —
+    // toggleFace/setGeneralCondition ya permiten deshacer un click
+    // puntual repitiéndolo, pero eso exige recordar exactamente qué
+    // se tocó. Esto es el botón de "me equivoqué, empecemos de nuevo
+    // con esta pieza".
+    window.clearGeneralRecord = function() {
+      if (!selectedTooth) return;
+      if (!clinicalRecords[selectedTooth]) return;
+      if (!confirm(`¿Borrar todo lo marcado en la pieza ${selectedTooth} (Odontología General)?`)) return;
+      delete clinicalRecords[selectedTooth];
       updateUIState();
       renderAllLayers();
       calculateBudget();
