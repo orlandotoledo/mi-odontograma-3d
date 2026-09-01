@@ -1390,7 +1390,8 @@
         const p1 = getToothWorldPos(currentPositions[br.start]).add(new THREE.Vector3(0, yDir * 0.03, 0));
         const p2 = getToothWorldPos(currentPositions[br.end]).add(new THREE.Vector3(0, yDir * 0.03, 0));
         const dist = p1.distanceTo(p2);
-        const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, dist, 16), new THREE.MeshBasicMaterial({ color: 0xf59e0b, depthTest: false }));
+        const color = STATE_COLORS[br.status] || 0xf59e0b;
+        const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, dist, 16), new THREE.MeshBasicMaterial({ color, depthTest: false }));
         cyl.position.copy(new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5));
         cyl.setRotationFromQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0), new THREE.Vector3().subVectors(p2, p1).normalize()));
         bridgesGroup.add(cyl);
@@ -2058,7 +2059,7 @@
         document.getElementById('btn-bridge-action').innerText = `🔗 Unir con Pz ${selectedTooth}`;
       } else {
         if (bridgeStartTooth !== selectedTooth) {
-          bridges.push({ start: bridgeStartTooth, end: selectedTooth, arch: currentArch });
+          bridges.push({ start: bridgeStartTooth, end: selectedTooth, arch: currentArch, status: currentClinicalState });
           bridgeStartTooth = null;
           document.getElementById('btn-bridge-action').innerText = '🌉 Trazar Puente desde Pieza';
           renderAllLayers();
@@ -2283,6 +2284,67 @@
         doc.setTextColor(100, 116, 139);
         doc.text('Firma de Conformidad del Paciente / Tutor', 24, finalY + 22);
       }
+
+      // Página 2 — nomenclatura estándar de odontograma (siglas C/R/Co/
+      // Imp/Endo/EX/RE/P), a pedido explícito de un doctor. Va en el
+      // PDF y no en el visor 3D a propósito: acá no hay color de
+      // posición 3D comunicando el hallazgo, así que las siglas de
+      // papel sí aportan — en el visor en vivo esa función ya la
+      // cumplen el color y la posición del marcador.
+      const siglasFila = (fdi, texto, estado) => [fdi, texto, estado];
+      const filasSiglas = [];
+      for (const [fdi, rec] of Object.entries(clinicalRecords)) {
+        if (rec.faces) {
+          for (const [face, estado] of Object.entries(rec.faces)) {
+            const sigla = estado === 'diagnosticado' ? 'C' : 'R';
+            const estadoTxt = estado === 'diagnosticado' ? 'Requerido' : (estado === 'existente' ? 'Previo' : 'Realizado');
+            filasSiglas.push(siglasFila(fdi, `${sigla}-${face}`, estadoTxt));
+          }
+        }
+        if (rec.general === 'corona') filasSiglas.push(siglasFila(fdi, 'Co', rec.status === 'diagnosticado' ? 'Requerido' : (rec.status === 'existente' ? 'Previo' : 'Realizado')));
+        if (rec.general === 'implante') filasSiglas.push(siglasFila(fdi, 'Imp', rec.status === 'diagnosticado' ? 'Requerido' : (rec.status === 'existente' ? 'Previo' : 'Realizado')));
+        if (rec.general === 'ausente') filasSiglas.push(siglasFila(fdi, 'X', 'Ausente'));
+        if (rec.surgery === 'exodoncia') filasSiglas.push(siglasFila(fdi, 'EX', 'Requerido'));
+        if (rec.surgery === 'resto') filasSiglas.push(siglasFila(fdi, 'RE', 'Requerido'));
+        if (rec.canales && Object.values(rec.canales).some(v => v)) {
+          const obt = rec.endo_obturacion || 'sin_preparar';
+          filasSiglas.push(siglasFila(fdi, 'Endo', obt === 'obturado' ? 'Realizado' : 'Requerido'));
+        }
+      }
+      bridges.forEach(br => filasSiglas.push(siglasFila(`${br.start}-${br.end}`, 'P', br.status === 'diagnosticado' ? 'Requerido' : (br.status === 'existente' ? 'Previo' : 'Realizado'))));
+
+      if (filasSiglas.length > 0) {
+        doc.addPage();
+        doc.setFillColor(15, 23, 42);
+        doc.rect(0, 0, 210, 22, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('HALLAZGOS — NOMENCLATURA ESTÁNDAR', 14, 14);
+
+        doc.setTextColor(15, 23, 42);
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text('C = Caries | R = Restauración | Co = Corona | Imp = Implante | Endo = Endodoncia | EX = Exodoncia indicada | RE = Resto radicular | P = Puente | X = Ausente', 14, 30);
+
+        doc.autoTable({
+          startY: 36,
+          head: [['Pieza', 'Sigla', 'Estado']],
+          body: filasSiglas,
+          theme: 'striped',
+          headStyles: { fillColor: [15, 23, 42], fontSize: 8.5 },
+          styles: { fontSize: 8, cellPadding: 2.5 },
+          didParseCell: (data) => {
+            if (data.column.index === 2 && data.section === 'body') {
+              const t = data.cell.raw;
+              if (t === 'Requerido') data.cell.styles.textColor = [220, 38, 38];
+              else if (t === 'Previo') data.cell.styles.textColor = [37, 99, 235];
+              else if (t === 'Realizado') data.cell.styles.textColor = [22, 163, 74];
+            }
+          }
+        });
+      }
+
       return doc;
     }
 
