@@ -440,6 +440,11 @@
 
     <!-- 1. Odontología General (Sistema Limpio por Caras) -->
     <div id="panel-odonto">
+      <div class="section-lbl">⚡ Macros — Secuencias Comunes</div>
+      <button class="action-touch-btn" id="btn-macro-endo-corona" style="width:100%; margin-bottom:6px;" onclick="applyMacro('endo_perno_corona')">🦷⚡👑 Conducto + Perno + Corona</button>
+      <button class="action-touch-btn" id="btn-macro-exo-implante" style="width:100%; margin-bottom:6px;" onclick="applyMacro('exodoncia_implante')">🦷➡️🔩 Exodoncia + Implante Planificado</button>
+      <button class="action-touch-btn" id="btn-macro-corona-zirconia" style="width:100%; margin-bottom:10px;" onclick="applyMacro('corona_zirconia')">👑🧱 Corona + Zirconia</button>
+
       <div class="cross-container">
         <div></div>
         <div class="cross-cell" id="face-v" onclick="toggleFace('V')">V</div>
@@ -820,7 +825,7 @@
       rehabilitacion_faceta: 45000, bracket_metal: 25000, bracket_zafiro: 45000, arco_orto: 35000,
       sellante: 22000, fluor_focal: 18000, fluor_arcada: 35000, pulpotomia: 75000, pulpectomia: 95000,
       mantenedor: 110000, exodoncia: 50000, impactado: 120000, lesion_apicectomia: 90000,
-      lesion: 90000, perno_munon: 85000,
+      lesion: 90000, perno_munon: 85000, perno: 85000,
       // Cirugía Maxilofacial / Implantología Avanzada
       bloque: 550000, seno: 480000, rog: 320000,
       // Endodoncia Avanzada — precio según sea uni o multirradicular
@@ -1671,6 +1676,42 @@
       calculateBudget();
     };
 
+    // Macros — secuencias clínicas comunes en un solo click. Cada una
+    // toca campos DISTINTOS entre sí a propósito: general, surgery,
+    // canales y material son slots separados en clinicalRecords, así
+    // que no se pisan entre ellos. Lo que SÍ hay que cuidar es no
+    // combinar dos valores dentro del MISMO campo (ej. no se puede
+    // tener corona Y ausente a la vez en 'general' — son mutuamente
+    // excluyentes por diseño), así que cada macro está armada
+    // respetando esa regla.
+    window.applyMacro = function(nombre) {
+      if (!selectedTooth) { alert('Selecciona una pieza antes de aplicar una macro.'); return; }
+      if (!clinicalRecords[selectedTooth]) clinicalRecords[selectedTooth] = {};
+      const rec = clinicalRecords[selectedTooth];
+
+      if (nombre === 'endo_perno_corona') {
+        const tType = getToothType(selectedTooth);
+        rec.canales = rec.canales || {};
+        if (tType === 'molar_sup') { rec.canales.mv = true; rec.canales.dv = true; rec.canales.p = true; }
+        else if (tType === 'molar_inf') { rec.canales.mesial = true; rec.canales.distal = true; }
+        else { rec.canales.unico = true; }
+        rec.endo_obturacion = 'obturado';
+        rec.surgery = 'perno';
+        rec.general = 'corona';
+      } else if (nombre === 'exodoncia_implante') {
+        rec.surgery = 'exodoncia';
+        rec.general = 'implante';
+      } else if (nombre === 'corona_zirconia') {
+        rec.general = 'corona';
+        rec.material = 'zirconia';
+      }
+
+      rec.status = currentClinicalState;
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
     window.setGeneralCondition = function(t) {
       if (!selectedTooth) return;
       if (!clinicalRecords[selectedTooth]) clinicalRecords[selectedTooth] = {};
@@ -2406,6 +2447,21 @@
       const doc = buildClinicalPDF(pName, pId, dName, sigImg);
       const consentimientoPdfBase64 = doc.output('datauristring');
 
+      // Lista de lo marcado como "Requerido" (no realizado todavía) —
+      // separado del desglose completo a propósito: esto es para que
+      // GHL pueda filtrar/etiquetar por tratamientos pendientes y
+      // armar retargeting de presupuestos sin cerrar, no para
+      // reemplazar la nota con el desglose completo que ya existe.
+      const LABELS_GENERAL = { corona: 'Corona', implante: 'Implante', ausente: 'Ausente' };
+      const LABELS_SURGERY = { exodoncia: 'Exodoncia', resto: 'Resto Radicular', impactado: 'Pieza Impactada', lesion: 'Quiste/Ápice', perno: 'Perno/Muñón', bloque: 'Injerto en Bloque', seno: 'Elevación de Seno', rog: 'ROG' };
+      const tratamientosRequeridos = [];
+      for (const [fdi, rec] of Object.entries(clinicalRecords)) {
+        if (rec.status !== 'diagnosticado') continue;
+        if (rec.general && LABELS_GENERAL[rec.general]) tratamientosRequeridos.push(`Pieza ${fdi}: ${LABELS_GENERAL[rec.general]}`);
+        if (rec.surgery && LABELS_SURGERY[rec.surgery]) tratamientosRequeridos.push(`Pieza ${fdi}: ${LABELS_SURGERY[rec.surgery]}`);
+        if (rec.canales && Object.values(rec.canales).some(v => v)) tratamientosRequeridos.push(`Pieza ${fdi}: Endodoncia`);
+      }
+
       const payload = {
         source: 'Odontograma 3D Tablet',
         timestamp: new Date().toISOString(),
@@ -2422,6 +2478,7 @@
         total_presupuesto: budget.total,
         moneda: 'CLP',
         desglose: budget.items,
+        tratamientos_requeridos: tratamientosRequeridos,
         detalles_clinicos: { general: clinicalRecords, periodoncia: perioRecords, removible: removableRecords, oclusion: occlusionRecords, atm: atmRecords, trauma: clinicalRecords, malposicion: clinicalRecords, estetica: esteticaRecords, ortodoncia: orthoRecords, puentes: bridges }
       };
 
