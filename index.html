@@ -477,6 +477,7 @@
         <button class="action-touch-btn" id="btn-surg-seno" onclick="setSurgCondition('seno')">🎈 Elevación de Seno</button>
       </div>
       <button class="action-touch-btn" id="btn-surg-rog" style="width:100%;" onclick="setSurgCondition('rog')">🔧 ROG (Regeneración Ósea Guiada)</button>
+      <button class="action-touch-btn" id="btn-clear-surgery" onclick="clearSurgeryRecord()" style="width:100%; margin-top:8px; background:rgba(239,68,68,0.12); border-color:#ef4444; color:#ef4444;">🗑️ Borrar Cirugía</button>
     </div>
 
     <div id="panel-endo" style="display: none;">
@@ -496,6 +497,7 @@
 
       <div class="section-lbl" style="margin-top:14px;">Obturación Apical</div>
       <button class="action-touch-btn" id="btn-endo-obturacion" style="width:100%;" onclick="cycleObturacion()">📏 Estado: <b id="lbl-endo-obturacion">Sin Preparar</b></button>
+      <button class="action-touch-btn" id="btn-clear-endo" onclick="clearEndoRecord()" style="width:100%; margin-top:8px; background:rgba(239,68,68,0.12); border-color:#ef4444; color:#ef4444;">🗑️ Borrar Endodoncia</button>
     </div>
 
     <!-- 3. Periodoncia Completa (6 Sitios) -->
@@ -549,6 +551,7 @@
         <button class="action-touch-btn" id="btn-mov-toggle" onclick="cycleMovilidad()">Movilidad: <b id="lbl-mov-val">G0</b></button>
         <button class="action-touch-btn" id="btn-furca-toggle" onclick="cycleFurca()">Furca: <b id="lbl-furca-val">F0</b></button>
       </div>
+      <button class="action-touch-btn" id="btn-clear-perio" onclick="clearPerioRecord()" style="width:100%; margin-top:8px; background:rgba(239,68,68,0.12); border-color:#ef4444; color:#ef4444;">🗑️ Borrar Periodoncia</button>
     </div>
 
     <!-- 4. Prótesis Fija -->
@@ -560,6 +563,7 @@
         <button class="action-touch-btn" id="btn-overlay" onclick="setRestorationCondition('overlay')">💎 Overlay</button>
         <button class="action-touch-btn" id="btn-carilla" onclick="setRestorationCondition('carilla')">✨ Carilla</button>
       </div>
+      <button class="action-touch-btn" id="btn-clear-restoration" onclick="clearRestorationRecord()" style="width:100%; margin-top:8px; background:rgba(239,68,68,0.12); border-color:#ef4444; color:#ef4444;">🗑️ Borrar Incrustación</button>
       <div class="section-lbl">Puente Dental 3D</div>
       <button class="action-touch-btn" id="btn-bridge-action" style="width:100%; background:#d97706; color:#fff;" onclick="handleBridgeButton()">🌉 Trazar Puente desde Pieza</button>
     </div>
@@ -584,6 +588,7 @@
         <button class="action-touch-btn" id="btn-occ-f2" onclick="setFacetCondition(2)">Mod (II)</button>
         <button class="action-touch-btn" id="btn-occ-f3" onclick="setFacetCondition(3)">Sev (III)</button>
       </div>
+      <button class="action-touch-btn" id="btn-clear-facet" onclick="clearFacetRecord()" style="width:100%; margin-top:8px; background:rgba(239,68,68,0.12); border-color:#ef4444; color:#ef4444;">🗑️ Borrar Faceta</button>
       <button class="action-touch-btn" id="btn-splint-arch" style="width:100%;" onclick="toggleSplintArch()">🛡️ Férula Miorrelajante</button>
 
       <div class="section-lbl" style="margin-top:14px;">ATM — Evaluación Rápida</div>
@@ -617,6 +622,7 @@
         <button class="action-touch-btn" id="btn-mal-intrusion" onclick="setMalpositionCondition('intrusion')">⬇️ Intrusión</button>
       </div>
       <button class="action-touch-btn" id="btn-mal-inclinacion" style="width:100%;" onclick="setMalpositionCondition('inclinacion')">📐 Inclinación de Eje</button>
+      <button class="action-touch-btn" id="btn-clear-malposition" onclick="clearMalpositionRecord()" style="width:100%; margin-top:8px; background:rgba(239,68,68,0.12); border-color:#ef4444; color:#ef4444;">🗑️ Borrar Malposición</button>
     </div>
 
     <!-- 9. Color VITA -->
@@ -632,6 +638,7 @@
         <button class="action-touch-btn" id="vita-C1" onclick="setVitaShade('C1')">C1</button>
         <button class="action-touch-btn" id="vita-D2" onclick="setVitaShade('D2')">D2</button>
       </div>
+      <button class="action-touch-btn" id="btn-clear-vita" onclick="clearVitaRecord()" style="width:100%; margin-top:8px; background:rgba(239,68,68,0.12); border-color:#ef4444; color:#ef4444;">🗑️ Borrar Tono</button>
       <button class="action-touch-btn" id="btn-bleach-arch" style="width:100%;" onclick="toggleBleachingArch()">✨ Blanqueamiento Arcada</button>
     </div>
 
@@ -648,6 +655,7 @@
         <button class="action-touch-btn" id="btn-ped-mantenedor" onclick="setPediatricCondition('mantenedor')">📐 Mantenedor</button>
         <button class="action-touch-btn" id="btn-fluor-arch-btn" onclick="applyFluorToArch()">✨ Flúor Arcada</button>
       </div>
+      <button class="action-touch-btn" id="btn-clear-pediatric" onclick="clearPediatricRecord()" style="width:100%; margin-top:8px; background:rgba(239,68,68,0.12); border-color:#ef4444; color:#ef4444;">🗑️ Borrar Condición</button>
     </div>
 
     <!-- 11. Ortodoncia -->
@@ -1683,6 +1691,101 @@
       calculateBudget();
     };
 
+    // Borra SOLO lo de Endodoncia Avanzada (canales + obturación) para
+    // la pieza seleccionada — no toca corona/implante/ausente ni
+    // ninguna otra especialidad de esa misma pieza, mismo criterio
+    // que clearGeneralRecord.
+    window.clearEndoRecord = function() {
+      if (!selectedTooth) return;
+      const rec = clinicalRecords[selectedTooth];
+      if (!rec || (!rec.canales && !rec.endo_obturacion)) return;
+      if (!confirm(`¿Borrar la Endodoncia Avanzada de la pieza ${selectedTooth} (conductos + obturación)?`)) return;
+      delete rec.canales;
+      delete rec.endo_obturacion;
+      updateUIState();
+      renderAllLayers();
+      calculateBudget();
+    };
+
+    // Las siguientes 6 son deliberadamente cortas: updateUIState() ya
+    // lee estos campos directo de los datos en cada refresh (líneas
+    // 1912-1932 aprox.), así que borrar el dato y llamar a
+    // updateUIState()+renderAllLayers()+calculateBudget() alcanza —
+    // no hace falta tocar ningún botón a mano, a diferencia de
+    // Periodoncia más abajo.
+
+    window.clearSurgeryRecord = function() {
+      if (!selectedTooth) return;
+      const rec = clinicalRecords[selectedTooth];
+      if (!rec || !rec.surgery) return;
+      if (!confirm(`¿Borrar la Cirugía marcada en la pieza ${selectedTooth}?`)) return;
+      delete rec.surgery;
+      updateUIState(); renderAllLayers(); calculateBudget();
+    };
+
+    window.clearRestorationRecord = function() {
+      if (!selectedTooth) return;
+      const rec = clinicalRecords[selectedTooth];
+      if (!rec || !rec.restoration) return;
+      if (!confirm(`¿Borrar la incrustación (Inlay/Onlay/Overlay/Carilla) de la pieza ${selectedTooth}?`)) return;
+      delete rec.restoration;
+      updateUIState(); renderAllLayers(); calculateBudget();
+    };
+
+    window.clearMalpositionRecord = function() {
+      if (!selectedTooth) return;
+      const rec = clinicalRecords[selectedTooth];
+      if (!rec || !rec.malposition) return;
+      if (!confirm(`¿Borrar la malposición marcada en la pieza ${selectedTooth}?`)) return;
+      delete rec.malposition;
+      updateUIState(); renderAllLayers(); calculateBudget();
+    };
+
+    window.clearPediatricRecord = function() {
+      if (!selectedTooth) return;
+      const rec = clinicalRecords[selectedTooth];
+      if (!rec || !rec.pediatric) return;
+      if (!confirm(`¿Borrar la condición pediátrica de la pieza ${selectedTooth}?`)) return;
+      delete rec.pediatric;
+      updateUIState(); renderAllLayers(); calculateBudget();
+    };
+
+    window.clearVitaRecord = function() {
+      if (!selectedTooth) return;
+      if (!esteticaRecords[currentArch].shades[selectedTooth]) return;
+      if (!confirm(`¿Borrar el tono VITA de la pieza ${selectedTooth}?`)) return;
+      delete esteticaRecords[currentArch].shades[selectedTooth];
+      updateUIState(); renderAllLayers();
+    };
+
+    window.clearFacetRecord = function() {
+      if (!selectedTooth) return;
+      if (!occlusionRecords[currentArch].facets[selectedTooth]) return;
+      if (!confirm(`¿Borrar la faceta de desgaste de la pieza ${selectedTooth}?`)) return;
+      delete occlusionRecords[currentArch].facets[selectedTooth];
+      updateUIState(); renderAllLayers(); calculateBudget();
+    };
+
+    // Periodoncia SÍ necesita reset manual de etiquetas: a diferencia
+    // de los otros paneles, sus números (PS/REC) se escriben directo
+    // al DOM dentro de cycleDepth/cycleRecession, no dentro de
+    // updateUIState() — así que si no los toco acá quedan mostrando
+    // el valor viejo en pantalla aunque el dato ya se haya borrado.
+    window.clearPerioRecord = function() {
+      if (!selectedTooth) return;
+      if (!perioRecords[selectedTooth]) return;
+      if (!confirm(`¿Borrar el registro periodontal completo de la pieza ${selectedTooth}?`)) return;
+      delete perioRecords[selectedTooth];
+      ['mv', 'v', 'dv', 'ml', 'l', 'dl'].forEach(site => {
+        document.getElementById(`lbl-perio-${site}`).innerText = '2mm';
+        document.getElementById(`lbl-rec-${site}`).innerText = '0mm';
+        document.getElementById(`btn-bop-${site}`)?.classList.remove('active-bop');
+      });
+      document.getElementById('lbl-mov-val').innerText = 'G0';
+      document.getElementById('lbl-furca-val').innerText = 'F0';
+      renderPerioMarkers();
+    };
+
     // ATM — evaluación rápida bilateral, no depende de selectedTooth
     window.toggleATM = function(campo) {
       atmRecords[campo] = !atmRecords[campo];
@@ -2036,7 +2139,7 @@
     // visible con Ver código fuente, no es autenticación real, solo
     // filtra tráfico accidental.
     const ODONTOGRAMA_WEBHOOK_URL = 'https://odontograma.orlandotoledo.com/webhook/odontograma';
-    const ODONTOGRAMA_WEBHOOK_SECRET = '09ec30cb812f54cd467df71c050db38bd91487ee33d29ad5';
+    const ODONTOGRAMA_WEBHOOK_SECRET = 'REEMPLAZAR_CON_EL_MISMO_VALOR_DEL_.env';
 
     async function syncToGHL(pName, pId, dName, sigImg, pPhone) {
       const budget = calculateBudget();
