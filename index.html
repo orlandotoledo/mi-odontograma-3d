@@ -564,8 +564,10 @@
         <button class="action-touch-btn" id="btn-carilla" onclick="setRestorationCondition('carilla')">✨ Carilla</button>
       </div>
       <button class="action-touch-btn" id="btn-clear-restoration" onclick="clearRestorationRecord()" style="width:100%; margin-top:8px; background:rgba(239,68,68,0.12); border-color:#ef4444; color:#ef4444;">🗑️ Borrar Incrustación</button>
+      <button class="action-touch-btn" id="btn-material-fija" onclick="cycleMaterial()" style="width:100%; margin-top:8px;">🧱 Material: <b id="lbl-material-fija">Sin especificar</b></button>
       <div class="section-lbl">Puente Dental 3D</div>
       <button class="action-touch-btn" id="btn-bridge-action" style="width:100%; background:#d97706; color:#fff;" onclick="handleBridgeButton()">🌉 Trazar Puente desde Pieza</button>
+      <button class="action-touch-btn" id="btn-lab-order" style="width:100%; margin-top:8px; background:#7c3aed; border-color:#8b5cf6; color:#fff;" onclick="openLabOrderModal()">🧾 Generar Orden de Laboratorio</button>
     </div>
 
     <!-- 5. Prótesis Removible -->
@@ -578,6 +580,8 @@
         <button class="action-touch-btn" id="btn-rem-ninguna" onclick="setArchRemovableType(null)">❌ Retirar</button>
       </div>
       <button class="action-touch-btn" id="btn-rem-gancho" style="width:100%;" onclick="toggleRemovableRetainer()">🧲 Gancho Cromo-Cobalto</button>
+      <button class="action-touch-btn" id="btn-material-removible" onclick="cycleMaterialRemovible()" style="width:100%; margin-top:8px;">🧱 Material: <b id="lbl-material-removible">Sin especificar</b></button>
+      <button class="action-touch-btn" id="btn-kennedy" onclick="cycleKennedy()" style="width:100%;">📋 Clasificación de Kennedy: <b id="lbl-kennedy">Sin clasificar</b></button>
     </div>
 
     <!-- 6. Oclusión y ATM -->
@@ -740,6 +744,57 @@
     </div>
   </div>
 
+  <div id="lab-order-modal" class="modal-overlay">
+    <div class="modal-card" style="max-height: 85vh; overflow-y: auto;">
+      <h3 style="font-size: 15px; color: var(--primary); margin-bottom: 4px;">Orden de Laboratorio</h3>
+      <p style="font-size: 10.5px; color: var(--text-muted); margin: 0 0 10px;">Junta todo lo ya marcado (piezas, material, color) con los datos que el laboratorio necesita. Todos los campos de esta pantalla son opcionales salvo que tu laboratorio los exija — dejá en blanco lo que no aplique.</p>
+
+      <div class="grid-2col">
+        <input type="text" id="lab-patient-name" class="modal-input" placeholder="Nombre Paciente">
+        <input type="text" id="lab-patient-id" class="modal-input" placeholder="RUT / ID">
+      </div>
+      <input type="text" id="lab-doctor-name" class="modal-input" value="Dr. Orlando Toledo">
+      <input type="text" id="lab-nombre-laboratorio" class="modal-input" placeholder="Nombre del laboratorio destino">
+
+      <div class="grid-2col">
+        <div>
+          <label style="font-size: 10px; color: var(--text-muted); font-weight:700;">Fecha de entrega solicitada:</label>
+          <input type="date" id="lab-fecha-entrega" class="modal-input">
+        </div>
+        <div>
+          <label style="font-size: 10px; color: var(--text-muted); font-weight:700;">Registro utilizado:</label>
+          <div class="grid-2col" style="gap:4px;">
+            <button class="action-touch-btn active" id="btn-registro-impresion" style="font-size:10px; min-height:34px;" onclick="setTipoRegistro('impresion')">Impresión</button>
+            <button class="action-touch-btn" id="btn-registro-escaneo" style="font-size:10px; min-height:34px;" onclick="setTipoRegistro('escaneo')">Escaneo Digital</button>
+          </div>
+        </div>
+      </div>
+
+      <label style="font-size: 10px; color: var(--text-muted); font-weight:700;">Diseño de margen / línea de terminación (opcional):</label>
+      <input type="text" id="lab-diseno-margen" class="modal-input" placeholder="Ej: supragingival, subgingival 0.5mm...">
+
+      <label style="font-size: 10px; color: var(--text-muted); font-weight:700;">Color por tercio — solo si tu laboratorio lo pide (opcional, además del tono VITA ya marcado por pieza):</label>
+      <div class="grid-3col">
+        <input type="text" id="lab-color-cervical" class="modal-input" placeholder="Cervical" style="font-size:10.5px;">
+        <input type="text" id="lab-color-medio" class="modal-input" placeholder="Medio" style="font-size:10.5px;">
+        <input type="text" id="lab-color-incisal" class="modal-input" placeholder="Incisal/Oclusal" style="font-size:10.5px;">
+      </div>
+
+      <label style="font-size: 10px; color: var(--text-muted); font-weight:700;">Tipo de conexión (solo si hay puentes marcados, opcional):</label>
+      <input type="text" id="lab-tipo-conexion" class="modal-input" placeholder="Ej: cementado, atornillado, póntico ovoide...">
+
+      <label style="font-size: 10px; color: var(--text-muted); font-weight:700;">Indicaciones adicionales:</label>
+      <textarea id="lab-notas" class="modal-input" rows="3" style="resize:vertical; font-family:inherit;" placeholder="Cualquier instrucción especial para este caso..."></textarea>
+
+      <p style="font-size: 9.5px; color: var(--text-muted); margin: 6px 0 0;">El PDF incluye una línea en blanco para firma y timbre — la orden de laboratorio la firma el odontólogo al entregarla, no se firma en pantalla como el consentimiento del paciente.</p>
+
+      <div class="modal-btns">
+        <button class="touch-btn" onclick="closeLabOrderModal()">Cancelar</button>
+        <button class="touch-btn btn-pdf" onclick="generateLabOrderPDF()">📄 Generar Orden PDF</button>
+      </div>
+    </div>
+  </div>
+
   <div id="status">Iniciando visor 3D...</div>
   <canvas id="canvas"></canvas>
 
@@ -800,7 +855,7 @@
 
     const clinicalRecords = {};
     const perioRecords = {};
-    const removableRecords = { inferior: { type: null, retainers: [] }, superior: { type: null, retainers: [] } };
+    const removableRecords = { inferior: { type: null, retainers: [], material: null, kennedy: null }, superior: { type: null, retainers: [], material: null, kennedy: null } };
     const occlusionRecords = { inferior: { splint: false, facets: {} }, superior: { splint: false, facets: {} } };
     // ATM no es por diente ni por arcada — es una evaluación del
     // paciente, bilateral (izq/der), independiente de qué arcada
@@ -1810,6 +1865,22 @@
       calculateBudget();
     };
 
+    // Material para prótesis fija (corona/inlay/onlay/overlay/carilla)
+    // por diente. No afecta el presupuesto ni la marca 3D — es
+    // información puramente para la orden de laboratorio, así que
+    // deliberadamente no pasa por updateUIState()/renderAllLayers().
+    const MATERIALES_FIJA = [null, 'zirconia', 'emax', 'pfm', 'resina'];
+    const MATERIALES_FIJA_LBL = { zirconia: 'Zirconia', emax: 'Disilicato de Litio (E.max)', pfm: 'Metal-Cerámica (PFM)', resina: 'Resina/Composite' };
+    window.cycleMaterial = function() {
+      if (!selectedTooth) return;
+      if (!clinicalRecords[selectedTooth]) clinicalRecords[selectedTooth] = {};
+      const cur = clinicalRecords[selectedTooth].material || null;
+      const idx = MATERIALES_FIJA.indexOf(cur);
+      const next = MATERIALES_FIJA[(idx + 1) % MATERIALES_FIJA.length];
+      clinicalRecords[selectedTooth].material = next;
+      document.getElementById('lbl-material-fija').innerText = next ? MATERIALES_FIJA_LBL[next] : 'Sin especificar';
+    };
+
     window.setFacetCondition = function(gr) {
       if (!selectedTooth) return;
       occlusionRecords[currentArch].facets[selectedTooth] = (occlusionRecords[currentArch].facets[selectedTooth] === gr) ? 0 : gr;
@@ -1908,6 +1979,34 @@
       updateUIState();
       renderAllLayers();
       calculateBudget();
+    };
+
+    // Material para prótesis removible — cíclico, igual criterio que
+    // la obturación apical de endodoncia: pocas opciones mutuamente
+    // excluyentes, un botón que rota es más rápido que 4 botones más
+    // compitiendo por espacio en un panel que ya tiene varios.
+    const MATERIALES_REMOVIBLE = [null, 'cromo_cobalto', 'acrilico', 'titanio'];
+    const MATERIALES_REMOVIBLE_LBL = { cromo_cobalto: 'Cromo-Cobalto', acrilico: 'Acrílico', titanio: 'Titanio' };
+    window.cycleMaterialRemovible = function() {
+      const cur = removableRecords[currentArch].material;
+      const idx = MATERIALES_REMOVIBLE.indexOf(cur);
+      const next = MATERIALES_REMOVIBLE[(idx + 1) % MATERIALES_REMOVIBLE.length];
+      removableRecords[currentArch].material = next;
+      document.getElementById('lbl-material-removible').innerText = next ? MATERIALES_REMOVIBLE_LBL[next] : 'Sin especificar';
+    };
+
+    // Clasificación de Kennedy — sistema estándar para describir
+    // arcadas parcialmente edéntulas antes de diseñar una prótesis
+    // parcial removible. Clase I-IV, sin subclases acá (mantenerlo
+    // simple; el laboratorio puede pedir el detalle de subclase por
+    // separado si lo necesita).
+    const KENNEDY_CLASES = [null, 'I', 'II', 'III', 'IV'];
+    window.cycleKennedy = function() {
+      const cur = removableRecords[currentArch].kennedy;
+      const idx = KENNEDY_CLASES.indexOf(cur);
+      const next = KENNEDY_CLASES[(idx + 1) % KENNEDY_CLASES.length];
+      removableRecords[currentArch].kennedy = next;
+      document.getElementById('lbl-kennedy').innerText = next ? `Clase ${next}` : 'Sin clasificar';
     };
 
     window.handleBridgeButton = function() {
@@ -2025,6 +2124,14 @@
       document.getElementById('btn-bleach-arch')?.classList.toggle('active', esteticaRecords[currentArch].bleaching);
       document.getElementById('btn-fluor-arch-btn')?.classList.toggle('active', pediatricRecords[currentArch].fluorArch);
       document.getElementById('btn-rem-gancho')?.classList.toggle('active', selectedTooth ? removableRecords[currentArch].retainers.includes(selectedTooth) : false);
+
+      // Material y Kennedy son solo para la orden de laboratorio —
+      // no afectan presupuesto ni marca 3D, pero igual necesitan
+      // refrescarse al cambiar de diente/arcada como cualquier otro
+      // campo, si no quedan mostrando el valor de la pieza anterior.
+      document.getElementById('lbl-material-fija').innerText = cur?.material ? MATERIALES_FIJA_LBL[cur.material] : 'Sin especificar';
+      document.getElementById('lbl-material-removible').innerText = removableRecords[currentArch].material ? MATERIALES_REMOVIBLE_LBL[removableRecords[currentArch].material] : 'Sin especificar';
+      document.getElementById('lbl-kennedy').innerText = removableRecords[currentArch].kennedy ? `Clase ${removableRecords[currentArch].kennedy}` : 'Sin clasificar';
     }
 
     // Modal Consentimiento y Firma Digital
@@ -2059,6 +2166,15 @@
     window.clearSignature = function() { sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); hasSignature = false; };
     window.openConsentModal = function(type) { consentActionType = type; document.getElementById('consent-modal').style.display = 'flex'; };
     window.closeConsentModal = function() { document.getElementById('consent-modal').style.display = 'none'; };
+
+    let tipoRegistroLab = 'impresion';
+    window.openLabOrderModal = function() { document.getElementById('lab-order-modal').style.display = 'flex'; };
+    window.closeLabOrderModal = function() { document.getElementById('lab-order-modal').style.display = 'none'; };
+    window.setTipoRegistro = function(t) {
+      tipoRegistroLab = t;
+      document.getElementById('btn-registro-impresion').classList.toggle('active', t === 'impresion');
+      document.getElementById('btn-registro-escaneo').classList.toggle('active', t === 'escaneo');
+    };
 
     window.submitConsent = function(type) {
       const pName = document.getElementById('pdf-patient-name').value.trim() || 'Paciente General';
@@ -2131,6 +2247,146 @@
     function generatePDF(pName, pId, dName, sigImg) {
       const doc = buildClinicalPDF(pName, pId, dName, sigImg);
       doc.save(`Ficha_${pName.replace(/\s+/g, '_')}.pdf`);
+    }
+
+    // Orden de Laboratorio — junta lo ya marcado en el odontograma
+    // (piezas con corona/incrustación + su material + su tono VITA,
+    // puentes, prótesis removible con material y Kennedy) con los
+    // campos que solo existen para esta orden (laboratorio, fecha de
+    // entrega, tipo de registro, margen, color por tercio, conexión,
+    // notas). No lleva firma capturada: es del odontólogo, se firma
+    // físicamente al entregar la orden, no en pantalla como el
+    // consentimiento del paciente.
+    function generateLabOrderPDF() {
+      const pName = document.getElementById('lab-patient-name').value.trim() || 'Paciente General';
+      const pId = document.getElementById('lab-patient-id').value.trim() || 'Sin Especificar';
+      const dName = document.getElementById('lab-doctor-name').value.trim() || 'Dr. Orlando Toledo';
+      const labName = document.getElementById('lab-nombre-laboratorio').value.trim();
+      const fechaEntrega = document.getElementById('lab-fecha-entrega').value;
+      const disenoMargen = document.getElementById('lab-diseno-margen').value.trim();
+      const colorCervical = document.getElementById('lab-color-cervical').value.trim();
+      const colorMedio = document.getElementById('lab-color-medio').value.trim();
+      const colorIncisal = document.getElementById('lab-color-incisal').value.trim();
+      const tipoConexion = document.getElementById('lab-tipo-conexion').value.trim();
+      const notas = document.getElementById('lab-notas').value.trim();
+
+      const getShade = (fdi) => esteticaRecords.inferior.shades[fdi] || esteticaRecords.superior.shades[fdi] || '—';
+
+      const piezasFija = [];
+      for (const [fdi, rec] of Object.entries(clinicalRecords)) {
+        const matLbl = rec.material ? MATERIALES_FIJA_LBL[rec.material] : 'Sin especificar';
+        if (rec.restoration) {
+          const tipoLbl = { inlay: 'Inlay', onlay: 'Onlay', overlay: 'Overlay', carilla: 'Carilla' }[rec.restoration];
+          piezasFija.push([fdi, tipoLbl, matLbl, getShade(fdi)]);
+        } else if (rec.general === 'corona') {
+          piezasFija.push([fdi, 'Corona', matLbl, getShade(fdi)]);
+        }
+      }
+
+      const puentesInfo = bridges.map(b => `Pieza ${b.start} — Pieza ${b.end} (arcada ${b.arch})`);
+
+      const removibleInfo = [];
+      ['inferior', 'superior'].forEach(arch => {
+        const r = removableRecords[arch];
+        if (r.type) {
+          const tipoLbl = { total: 'Total', esqueletica: 'Esquelética', flexible: 'Flexible (Valplast)' }[r.type];
+          const matLbl = r.material ? MATERIALES_REMOVIBLE_LBL[r.material] : 'Sin especificar';
+          const kenLbl = r.kennedy ? `Clase ${r.kennedy}` : 'Sin clasificar';
+          removibleInfo.push(`Arcada ${arch}: ${tipoLbl} — Material: ${matLbl} — Kennedy: ${kenLbl}`);
+        }
+      });
+
+      if (piezasFija.length === 0 && removibleInfo.length === 0 && bridges.length === 0) {
+        alert('No hay ninguna pieza con corona, incrustación, puente o prótesis removible marcada todavía.');
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF('p', 'mm', 'a4');
+
+      doc.setFillColor(76, 29, 149);
+      doc.rect(0, 0, 210, 30, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text('ORDEN DE TRABAJO — LABORATORIO DENTAL', 14, 14);
+      doc.setFontSize(8.5);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(216, 180, 254);
+      const entregaTxt = fechaEntrega ? ` | Entrega solicitada: ${new Date(fechaEntrega + 'T00:00:00').toLocaleDateString('es-CL')}` : '';
+      doc.text(`Fecha de solicitud: ${new Date().toLocaleDateString('es-CL')}${entregaTxt}`, 14, 22);
+
+      doc.setFillColor(241, 245, 249);
+      doc.rect(14, 34, 182, 20, 'F');
+      doc.setTextColor(30, 41, 59);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Paciente: ${pName}  |  RUT: ${pId}`, 18, 42);
+      doc.text(`Odontólogo: ${dName}${labName ? '  |  Laboratorio: ' + labName : ''}`, 18, 50);
+
+      let y = 62;
+      doc.setTextColor(15, 23, 42);
+
+      if (piezasFija.length > 0) {
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Prótesis Fija / Incrustaciones', 14, y);
+        doc.autoTable({
+          startY: y + 3,
+          head: [['Pieza', 'Tipo', 'Material', 'Tono VITA']],
+          body: piezasFija.map(([fdi, tipo, mat, shade]) => [fdi, tipo, mat, shade]),
+          theme: 'striped',
+          headStyles: { fillColor: [124, 58, 237], fontSize: 8.5 },
+          styles: { fontSize: 8, cellPadding: 2 }
+        });
+        y = doc.lastAutoTable.finalY + 8;
+      }
+
+      const addBulletSection = (titulo, items) => {
+        if (items.length === 0) return;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text(titulo, 14, y);
+        y += 5;
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'normal');
+        items.forEach(i => { doc.text(`• ${i}`, 18, y); y += 5; });
+        y += 3;
+      };
+
+      addBulletSection('Puentes', puentesInfo);
+      addBulletSection('Prótesis Removible', removibleInfo);
+
+      const specs = [];
+      if (disenoMargen) specs.push(`Diseño de margen: ${disenoMargen}`);
+      if (colorCervical || colorMedio || colorIncisal) specs.push(`Color por tercio — Cervical: ${colorCervical || '—'} / Medio: ${colorMedio || '—'} / Incisal-Oclusal: ${colorIncisal || '—'}`);
+      if (tipoConexion) specs.push(`Tipo de conexión: ${tipoConexion}`);
+      specs.push(`Registro utilizado: ${tipoRegistroLab === 'escaneo' ? 'Escaneo digital' : 'Impresión física'}`);
+      addBulletSection('Especificaciones', specs);
+
+      if (notas) {
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Indicaciones Adicionales', 14, y);
+        y += 5;
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'normal');
+        const notasLines = doc.splitTextToSize(notas, 180);
+        doc.text(notasLines, 18, y);
+        y += notasLines.length * 4.5 + 5;
+      }
+
+      if (y < 260) {
+        y += 10;
+        doc.setDrawColor(148, 163, 184);
+        doc.line(24, y, 110, y);
+        doc.setFontSize(7.5);
+        doc.setTextColor(100, 116, 139);
+        doc.text(`Firma y timbre — ${dName}`, 24, y + 5);
+      }
+
+      doc.save(`Orden_Laboratorio_${pName.replace(/\s+/g, '_')}.pdf`);
+      closeLabOrderModal();
     }
 
     // Reemplazar con la URL y el secreto reales (los mismos del .env
