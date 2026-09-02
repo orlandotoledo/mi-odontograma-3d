@@ -461,6 +461,7 @@
         <button class="action-touch-btn" id="btn-endodoncia" onclick="setGeneralCondition('endodoncia')">⚡ Conducto</button>
         <button class="action-touch-btn" id="btn-implante" onclick="setGeneralCondition('implante')">🔩 Implante</button>
         <button class="action-touch-btn" id="btn-ausente" onclick="setGeneralCondition('ausente')">❌ Ausente</button>
+        <button class="action-touch-btn" id="btn-sellante" onclick="setGeneralCondition('sellante')">🛡️ Sellante</button>
       </div>
       <button class="action-touch-btn" id="btn-clear-piece" onclick="clearGeneralRecord()" style="width:100%; margin-top:8px; background:rgba(239,68,68,0.12); border-color:#ef4444; color:#ef4444;">🗑️ Borrar Pieza</button>
     </div>
@@ -557,6 +558,14 @@
         <button class="action-touch-btn" id="btn-furca-toggle" onclick="cycleFurca()">Furca: <b id="lbl-furca-val">F0</b></button>
       </div>
       <button class="action-touch-btn" id="btn-clear-perio" onclick="clearPerioRecord()" style="width:100%; margin-top:8px; background:rgba(239,68,68,0.12); border-color:#ef4444; color:#ef4444;">🗑️ Borrar Periodoncia</button>
+
+      <div class="section-lbl" style="margin-top:14px;">Periodoncia Compleja (Cirugía)</div>
+      <div class="grid-2col">
+        <button class="action-touch-btn" id="btn-surg-gingivectomia" onclick="setSurgCondition('gingivectomia')">✂️ Gingivectomía</button>
+        <button class="action-touch-btn" id="btn-surg-colgajo" onclick="setSurgCondition('colgajo')">🔬 Cirugía de Colgajo</button>
+        <button class="action-touch-btn" id="btn-surg-rtg_perio" onclick="setSurgCondition('rtg_perio')">🧬 Regeneración Tisular</button>
+        <button class="action-touch-btn" id="btn-surg-alargamiento" onclick="setSurgCondition('alargamiento')">📏 Alargamiento Coronario</button>
+      </div>
     </div>
 
     <!-- 4. Prótesis Fija -->
@@ -684,6 +693,12 @@
         <button class="action-touch-btn" id="wire-estetico" onclick="setWireType('estetico')">Blanco Est.</button>
       </div>
       <button class="action-touch-btn" style="width:100%; margin-top:4px;" onclick="applyOrthoToFullArch('metal')">✨ Equipar Arcada Completa</button>
+
+      <div class="section-lbl" style="margin-top:14px;">Ortopedia Funcional (arcada actual)</div>
+      <button class="action-touch-btn" id="btn-aparato-funcional" onclick="cycleAparatoFuncional()" style="width:100%;">🦴 Aparato: <b id="lbl-aparato-funcional">Ninguno</b></button>
+
+      <div class="section-lbl" style="margin-top:14px;">Retención (arcada actual)</div>
+      <button class="action-touch-btn" id="btn-retenedor" onclick="cycleRetenedor()" style="width:100%;">🛡️ Retenedor: <b id="lbl-retenedor">Ninguno</b></button>
     </div>
   </div>
 
@@ -721,6 +736,17 @@
         <button class="action-touch-btn" id="alert-asma" onclick="toggleMedicalAlert('asma')">🫁 Asma</button>
       </div>
       <input type="text" id="med-other-notes" class="modal-input" placeholder="Otras alergias / medicación..." style="margin-top:8px;">
+
+      <div class="section-lbl" style="margin-top:12px;">Registros Generales</div>
+      <button class="action-touch-btn" id="reg-profilaxis" onclick="toggleRegistroGeneral('profilaxis')" style="width:100%; margin-bottom:8px;">🪥 Profilaxis Realizada</button>
+      <label style="font-size: 10px; color: var(--text-muted); font-weight:700;">Radiografías Solicitadas:</label>
+      <div class="grid-3col">
+        <button class="action-touch-btn" id="reg-rx_periapical" onclick="toggleRegistroGeneral('rx_periapical')" style="font-size:10px;">Periapical</button>
+        <button class="action-touch-btn" id="reg-rx_bitewing" onclick="toggleRegistroGeneral('rx_bitewing')" style="font-size:10px;">Bitewing</button>
+        <button class="action-touch-btn" id="reg-rx_panoramica" onclick="toggleRegistroGeneral('rx_panoramica')" style="font-size:10px;">Panorámica</button>
+        <button class="action-touch-btn" id="reg-rx_cefalometria" onclick="toggleRegistroGeneral('rx_cefalometria')" style="font-size:10px;">Cefalometría</button>
+        <button class="action-touch-btn" id="reg-rx_cbct" onclick="toggleRegistroGeneral('rx_cbct')" style="font-size:10px;">CBCT</button>
+      </div>
       <div class="modal-btns">
         <button class="touch-btn active" style="background:#ea580c; border-color:#f97316;" onclick="closeAnamnesisModal()">Guardar Alertas</button>
       </div>
@@ -829,7 +855,11 @@
       // Cirugía Maxilofacial / Implantología Avanzada
       bloque: 550000, seno: 480000, rog: 320000,
       // Endodoncia Avanzada — precio según sea uni o multirradicular
-      endo_unico: 140000, endo_molar: 220000
+      endo_unico: 140000, endo_molar: 220000,
+      // Higiene, Periodoncia Compleja, Ortopedia Funcional, Retención
+      profilaxis: 35000,
+      gingivectomia: 180000, colgajo: 250000, rtg_perio: 320000, alargamiento: 150000,
+      aparato_funcional: 380000, retenedor: 90000
     };
 
     const VITA_COLORS = {
@@ -858,6 +888,16 @@
       penicilina: false, latex: false, anestesia: false, anticoagulado: false,
       hipertension: false, diabetes: false, embarazo: false, asma: false, otras: ''
     };
+    // Nivel paciente completo, no por diente ni por arcada — mismo
+    // criterio que ATM. Profilaxis es un procedimiento de boca
+    // completa; las radiografías son un registro de qué estudios se
+    // solicitaron, no un análisis de imagen (eso sigue fuera de
+    // alcance por el tema regulatorio ya evaluado antes).
+    const registrosGenerales = {
+      profilaxis: false,
+      rx_periapical: false, rx_bitewing: false, rx_panoramica: false,
+      rx_cefalometria: false, rx_cbct: false
+    };
 
     const clinicalRecords = {};
     const perioRecords = {};
@@ -869,7 +909,7 @@
     const atmRecords = { click_izq: false, click_der: false, dolor_izq: false, dolor_der: false, desviacion: null };
     const esteticaRecords = { inferior: { bleaching: false, shades: {} }, superior: { bleaching: false, shades: {} } };
     const pediatricRecords = { inferior: { fluorArch: false }, superior: { fluorArch: false } };
-    const orthoRecords = { inferior: { brackets: {}, wire: 'none' }, superior: { brackets: {}, wire: 'none' } };
+    const orthoRecords = { inferior: { brackets: {}, wire: 'none', aparatoFuncional: null, retenedor: null }, superior: { brackets: {}, wire: 'none', aparatoFuncional: null, retenedor: null } };
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xc8d3e0);
@@ -991,6 +1031,10 @@
     window.toggleMedicalAlert = function(alertKey) {
       medicalAlerts[alertKey] = !medicalAlerts[alertKey];
       document.getElementById(`alert-${alertKey}`)?.classList.toggle('active', medicalAlerts[alertKey]);
+    };
+    window.toggleRegistroGeneral = function(key) {
+      registrosGenerales[key] = !registrosGenerales[key];
+      document.getElementById(`reg-${key}`)?.classList.toggle('active', registrosGenerales[key]);
     };
     function updateMedicalAlertBanner() {
       const box = document.getElementById('alert-pill-box');
@@ -1276,6 +1320,34 @@
           membrane.position.set(p.x, p.y - (yDir * 0.12), p.z);
           membrane.rotation.x = Math.PI / 2;
           surgeryGroup.add(membrane);
+        }
+        if (rec.surgery === 'gingivectomia') {
+          // Línea curva a nivel de encía, representando el recorte
+          const arc = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.006, 6, 12, Math.PI), new THREE.MeshBasicMaterial({ color: 0xfacc15, depthTest: false }));
+          arc.position.set(p.x, p.y - (yDir * 0.02), p.z);
+          arc.rotation.x = Math.PI / 2;
+          surgeryGroup.add(arc);
+        }
+        if (rec.surgery === 'colgajo') {
+          // Un rectángulo levemente separado del diente, representando el colgajo levantado
+          const flap = new THREE.Mesh(new THREE.PlaneGeometry(0.08, 0.1), new THREE.MeshBasicMaterial({ color: 0xef4444, transparent: true, opacity: 0.45, depthTest: false, side: THREE.DoubleSide }));
+          flap.position.set(p.x, p.y - (yDir * 0.05), p.z + 0.04);
+          surgeryGroup.add(flap);
+        }
+        if (rec.surgery === 'rtg_perio') {
+          // Misma idea visual que ROG (membrana) pero de otro color —
+          // procedimiento distinto (perio, no implante), no deberían
+          // confundirse mirando el modelo.
+          const membrane = new THREE.Mesh(new THREE.CircleGeometry(0.06, 16), new THREE.MeshBasicMaterial({ color: 0xa78bfa, transparent: true, opacity: 0.5, depthTest: false, side: THREE.DoubleSide }));
+          membrane.position.set(p.x, p.y - (yDir * 0.09), p.z);
+          membrane.rotation.x = Math.PI / 2;
+          surgeryGroup.add(membrane);
+        }
+        if (rec.surgery === 'alargamiento') {
+          const ring = new THREE.Mesh(new THREE.TorusGeometry(0.045, 0.007, 6, 16), new THREE.MeshBasicMaterial({ color: 0x0891b2, depthTest: false }));
+          ring.position.set(p.x, p.y, p.z);
+          ring.rotation.x = Math.PI / 2;
+          surgeryGroup.add(ring);
         }
       }
     }
@@ -1600,7 +1672,11 @@
         if (esteticaRecords[archKey].bleaching) { items.push({ item: `Blanqueamiento (${archKey})`, price: ARANCELES.blanqueamiento_arcada }); total += ARANCELES.blanqueamiento_arcada; }
         if (pediatricRecords[archKey]?.fluorArch) { items.push({ item: `Flúor Arcada Completa (${archKey})`, price: ARANCELES.fluor_arcada }); total += ARANCELES.fluor_arcada; }
         if (orthoRecords[archKey]?.wire && orthoRecords[archKey]?.wire !== 'none') { items.push({ item: `Arco Ortodóntico (${archKey})`, price: ARANCELES.arco_orto }); total += ARANCELES.arco_orto; }
+        if (orthoRecords[archKey]?.aparatoFuncional) { items.push({ item: `Aparato Funcional — ${orthoRecords[archKey].aparatoFuncional} (${archKey})`, price: ARANCELES.aparato_funcional }); total += ARANCELES.aparato_funcional; }
+        if (orthoRecords[archKey]?.retenedor && orthoRecords[archKey]?.retenedor !== 'retirado') { items.push({ item: `Retenedor — ${orthoRecords[archKey].retenedor} (${archKey})`, price: ARANCELES.retenedor }); total += ARANCELES.retenedor; }
       });
+
+      if (registrosGenerales.profilaxis) { items.push({ item: 'Profilaxis (boca completa)', price: ARANCELES.profilaxis }); total += ARANCELES.profilaxis; }
 
       document.getElementById('btn-top-budget').innerText = `💰 $${total.toLocaleString('es-CL')} CLP`;
       return { total, items };
@@ -1998,6 +2074,34 @@
       calculateBudget();
     };
 
+    // Ortopedia Funcional — aparatos removibles para guiar el
+    // crecimiento maxilar en pacientes en desarrollo, distinto de la
+    // aparatología fija (brackets) de arriba. Es por arcada, no por
+    // diente — el aparato actúa sobre la relación maxilar completa.
+    const APARATOS_FUNCIONALES = [null, 'Bionator', 'Frankel', 'Twin Block', 'Activador Andresen'];
+    window.cycleAparatoFuncional = function() {
+      const cur = orthoRecords[currentArch].aparatoFuncional;
+      const idx = APARATOS_FUNCIONALES.indexOf(cur);
+      const next = APARATOS_FUNCIONALES[(idx + 1) % APARATOS_FUNCIONALES.length];
+      orthoRecords[currentArch].aparatoFuncional = next;
+      document.getElementById('lbl-aparato-funcional').innerText = next || 'Ninguno';
+      calculateBudget();
+    };
+
+    // Fase de retención — después de retirar la aparatología activa.
+    // 'retirado' se factura distinto (o no se factura) porque ya no
+    // es un tratamiento en curso, es solo el registro de que se sacó.
+    const RETENEDORES = [null, 'Hawley', 'Essix', 'Fijo Lingual', 'retirado'];
+    const RETENEDORES_LBL = { Hawley: 'Hawley', Essix: 'Essix', 'Fijo Lingual': 'Fijo Lingual', retirado: 'Retirado' };
+    window.cycleRetenedor = function() {
+      const cur = orthoRecords[currentArch].retenedor;
+      const idx = RETENEDORES.indexOf(cur);
+      const next = RETENEDORES[(idx + 1) % RETENEDORES.length];
+      orthoRecords[currentArch].retenedor = next;
+      document.getElementById('lbl-retenedor').innerText = next ? RETENEDORES_LBL[next] : 'Ninguno';
+      calculateBudget();
+    };
+
     window.applyOrthoToFullArch = function(type) {
       getAnatomicalOrder().forEach(f => orthoRecords[currentArch].brackets[f] = type);
       if (type) orthoRecords[currentArch].wire = 'niti';
@@ -2109,10 +2213,10 @@
       }
 
       const cur = selectedTooth ? clinicalRecords[selectedTooth] : null;
-      ['corona', 'endodoncia', 'implante', 'ausente'].forEach(b => {
+      ['corona', 'endodoncia', 'implante', 'ausente', 'sellante'].forEach(b => {
         document.getElementById(`btn-${b}`)?.classList.toggle('active', cur?.general === b);
       });
-      ['exodoncia', 'resto', 'impactado', 'lesion', 'perno', 'bloque', 'seno', 'rog'].forEach(b => {
+      ['exodoncia', 'resto', 'impactado', 'lesion', 'perno', 'bloque', 'seno', 'rog', 'gingivectomia', 'colgajo', 'rtg_perio', 'alargamiento'].forEach(b => {
         document.getElementById(`btn-surg-${b}`)?.classList.toggle('active', cur?.surgery === b);
       });
 
@@ -2291,27 +2395,60 @@
       // posición 3D comunicando el hallazgo, así que las siglas de
       // papel sí aportan — en el visor en vivo esa función ya la
       // cumplen el color y la posición del marcador.
-      const siglasFila = (fdi, texto, estado) => [fdi, texto, estado];
+      //
+      // Clase de Black — se calcula sola a partir de qué caras están
+      // marcadas en el diente, no es una elección manual nueva:
+      // I = solo oclusal en posterior, II = proximal (± oclusal) en
+      // posterior, III = proximal en anterior. La Clase V (cervical)
+      // no es representable con las 5 caras V/M/O/D/L actuales — si
+      // hace falta, sería un octavo botón de cara a futuro, no algo
+      // que se pueda inferir. La Clase IV (proximal+incisal en
+      // anterior) tampoco se distingue de la III con los datos de
+      // hoy — se reporta como III y el doctor ajusta a IV a simple
+      // vista si corresponde.
+      function esAnteriorBlack(fdi) {
+        const posicion = fdi % 10;
+        return posicion >= 1 && posicion <= 3;
+      }
+      function calcularClaseBlack(fdi, facesRequeridas) {
+        if (!facesRequeridas || facesRequeridas.length === 0) return '';
+        const tieneO = facesRequeridas.includes('O');
+        const tieneProximal = facesRequeridas.includes('M') || facesRequeridas.includes('D');
+        if (esAnteriorBlack(fdi)) return tieneProximal ? 'III' : '';
+        if (tieneProximal) return 'II';
+        if (tieneO) return 'I';
+        return '';
+      }
+
+      const siglasFila = (fdi, texto, estado, clase) => [fdi, texto, estado, clase || ''];
       const filasSiglas = [];
       for (const [fdi, rec] of Object.entries(clinicalRecords)) {
         if (rec.faces) {
+          const facesRequeridas = Object.entries(rec.faces).filter(([, e]) => e === 'diagnosticado').map(([f]) => f);
+          const claseBlack = calcularClaseBlack(parseInt(fdi), facesRequeridas);
           for (const [face, estado] of Object.entries(rec.faces)) {
             const sigla = estado === 'diagnosticado' ? 'C' : 'R';
             const estadoTxt = estado === 'diagnosticado' ? 'Requerido' : (estado === 'existente' ? 'Previo' : 'Realizado');
-            filasSiglas.push(siglasFila(fdi, `${sigla}-${face}`, estadoTxt));
+            filasSiglas.push(siglasFila(fdi, `${sigla}-${face}`, estadoTxt, estado === 'diagnosticado' ? claseBlack : ''));
           }
         }
         if (rec.general === 'corona') filasSiglas.push(siglasFila(fdi, 'Co', rec.status === 'diagnosticado' ? 'Requerido' : (rec.status === 'existente' ? 'Previo' : 'Realizado')));
         if (rec.general === 'implante') filasSiglas.push(siglasFila(fdi, 'Imp', rec.status === 'diagnosticado' ? 'Requerido' : (rec.status === 'existente' ? 'Previo' : 'Realizado')));
         if (rec.general === 'ausente') filasSiglas.push(siglasFila(fdi, 'X', 'Ausente'));
+        if (rec.general === 'sellante') filasSiglas.push(siglasFila(fdi, 'Sel', rec.status === 'diagnosticado' ? 'Requerido' : (rec.status === 'existente' ? 'Previo' : 'Realizado')));
         if (rec.surgery === 'exodoncia') filasSiglas.push(siglasFila(fdi, 'EX', 'Requerido'));
         if (rec.surgery === 'resto') filasSiglas.push(siglasFila(fdi, 'RE', 'Requerido'));
+        if (['gingivectomia', 'colgajo', 'rtg_perio', 'alargamiento'].includes(rec.surgery)) {
+          const sig = { gingivectomia: 'Gv', colgajo: 'Cg', rtg_perio: 'RTG', alargamiento: 'Al' }[rec.surgery];
+          filasSiglas.push(siglasFila(fdi, sig, rec.status === 'diagnosticado' ? 'Requerido' : 'Realizado'));
+        }
         if (rec.canales && Object.values(rec.canales).some(v => v)) {
           const obt = rec.endo_obturacion || 'sin_preparar';
           filasSiglas.push(siglasFila(fdi, 'Endo', obt === 'obturado' ? 'Realizado' : 'Requerido'));
         }
       }
       bridges.forEach(br => filasSiglas.push(siglasFila(`${br.start}-${br.end}`, 'P', br.status === 'diagnosticado' ? 'Requerido' : (br.status === 'existente' ? 'Previo' : 'Realizado'))));
+      if (registrosGenerales.profilaxis) filasSiglas.push(siglasFila('—', 'Prof', 'Realizado'));
 
       if (filasSiglas.length > 0) {
         doc.addPage();
@@ -2323,13 +2460,14 @@
         doc.text('HALLAZGOS — NOMENCLATURA ESTÁNDAR', 14, 14);
 
         doc.setTextColor(15, 23, 42);
-        doc.setFontSize(8);
+        doc.setFontSize(7.5);
         doc.setFont('helvetica', 'normal');
-        doc.text('C = Caries | R = Restauración | Co = Corona | Imp = Implante | Endo = Endodoncia | EX = Exodoncia indicada | RE = Resto radicular | P = Puente | X = Ausente', 14, 30);
+        doc.text('C = Caries | R = Restauración | Co = Corona | Imp = Implante | Sel = Sellante | Endo = Endodoncia | EX = Exodoncia indicada | RE = Resto radicular | P = Puente | X = Ausente | Prof = Profilaxis', 14, 27);
+        doc.text('Gv = Gingivectomía | Cg = Cirugía de Colgajo | RTG = Regeneración Tisular Guiada | Al = Alargamiento Coronario | Clase = Clasificación de Black (I-III, calculada automático)', 14, 32);
 
         doc.autoTable({
-          startY: 36,
-          head: [['Pieza', 'Sigla', 'Estado']],
+          startY: 38,
+          head: [['Pieza', 'Sigla', 'Estado', 'Clase']],
           body: filasSiglas,
           theme: 'striped',
           headStyles: { fillColor: [15, 23, 42], fontSize: 8.5 },
@@ -2515,7 +2653,7 @@
       // armar retargeting de presupuestos sin cerrar, no para
       // reemplazar la nota con el desglose completo que ya existe.
       const LABELS_GENERAL = { corona: 'Corona', implante: 'Implante', ausente: 'Ausente' };
-      const LABELS_SURGERY = { exodoncia: 'Exodoncia', resto: 'Resto Radicular', impactado: 'Pieza Impactada', lesion: 'Quiste/Ápice', perno: 'Perno/Muñón', bloque: 'Injerto en Bloque', seno: 'Elevación de Seno', rog: 'ROG' };
+      const LABELS_SURGERY = { exodoncia: 'Exodoncia', resto: 'Resto Radicular', impactado: 'Pieza Impactada', lesion: 'Quiste/Ápice', perno: 'Perno/Muñón', bloque: 'Injerto en Bloque', seno: 'Elevación de Seno', rog: 'ROG', gingivectomia: 'Gingivectomía', colgajo: 'Cirugía de Colgajo', rtg_perio: 'Regeneración Tisular Guiada', alargamiento: 'Alargamiento Coronario' };
       const tratamientosRequeridos = [];
       for (const [fdi, rec] of Object.entries(clinicalRecords)) {
         if (rec.status !== 'diagnosticado') continue;
@@ -2618,6 +2756,8 @@
       document.getElementById('btn-arch-sup').classList.toggle('active', a === 'superior');
       document.getElementById('face-l').innerText = a === 'inferior' ? 'L' : 'P';
       document.getElementById('lbl-perio-pal-sec').innerText = a === 'inferior' ? 'Lingual (PS / REC / BOP)' : 'Palatino (PS / REC / BOP)';
+      document.getElementById('lbl-aparato-funcional').innerText = orthoRecords[a].aparatoFuncional || 'Ninguno';
+      document.getElementById('lbl-retenedor').innerText = orthoRecords[a].retenedor ? RETENEDORES_LBL[orthoRecords[a].retenedor] : 'Ninguno';
       selectedTooth = null;
       document.getElementById('lbl-piece').innerText = 'Ninguna';
       document.getElementById('bottom-sheet').classList.add('minimized');
