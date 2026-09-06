@@ -834,12 +834,12 @@
   <script>
     const CONFIG = {
       adult: {
-        inferior: { glb: './arcada_inferior.glb', json: './dientes_posiciones.json' },
-        superior: { glb: './arcada_superior.glb', json: './dientes_superiores_posiciones.json' }
+        inferior: { glb: './inferior_permanente_optimizado.glb', json: './dientes_posiciones.json' },
+        superior: { glb: './superior_permanente_optimizado.glb', json: './dientes_superiores_posiciones.json' }
       },
       temporal: {
-        inferior: { glb: './arcada_temporal_inferior.glb', json: './dientes_temporales_inferiores.json' },
-        superior: { glb: './arcada_temporal_superior.glb', json: './dientes_temporales_superiores.json' }
+        inferior: { glb: './inferior_temporal_optimizado.glb', json: './dientes_temporales_inferiores.json' },
+        superior: { glb: './superior_temporal_optimizado.glb', json: './dientes_temporales_superiores.json' }
       }
     };
 
@@ -1192,18 +1192,14 @@
         const p = getToothWorldPos(pos);
         const yDir = currentArch === 'superior' ? -1 : 1;
 
+        const toothNode = activeModel?.getObjectByName('diente_' + fdi);
+        if (toothNode) toothNode.visible = true;
+
         if (rec) {
           const itemColor = STATE_COLORS[rec.status || 'diagnosticado'];
 
           if (rec.general === 'ausente') {
-            const crossMat = new THREE.MeshBasicMaterial({ color: 0xef4444, depthTest: false });
-            const bar1 = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.18, 12), crossMat);
-            bar1.position.set(p.x, p.y + (yDir * 0.04), p.z);
-            bar1.rotation.set(Math.PI/2, 0, Math.PI/4);
-            const bar2 = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.18, 12), crossMat);
-            bar2.position.set(p.x, p.y + (yDir * 0.04), p.z);
-            bar2.rotation.set(Math.PI/2, 0, -Math.PI/4);
-            pathologiesGroup.add(bar1, bar2);
+            if (toothNode) toothNode.visible = false;
             continue;
           }
           if (rec.general === 'corona') {
