@@ -1116,10 +1116,12 @@
         const box = new THREE.Box3().setFromObject(activeModel);
         const center = box.getCenter(new THREE.Vector3());
         const size = box.getSize(new THREE.Vector3());
-        activeModel.position.sub(center);
 
         const maxDim = Math.max(size.x, size.y, size.z);
-        if (maxDim > 0 && (maxDim < 0.5 || maxDim > 5.0)) activeModel.scale.setScalar(2.0 / maxDim);
+        let scaleFactor = 1;
+        if (maxDim > 0 && (maxDim < 0.5 || maxDim > 5.0)) scaleFactor = 2.0 / maxDim;
+        activeModel.scale.setScalar(scaleFactor);
+        activeModel.position.copy(center).multiplyScalar(-scaleFactor);
         activeModel.updateMatrixWorld(true);
 
         activeModel.traverse(c => {
