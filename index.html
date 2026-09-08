@@ -915,7 +915,7 @@
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xc8d3e0);
 
-    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.01, 100);
+    const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.01, 1000);
     const renderer = new THREE.WebGLRenderer({
       canvas: document.getElementById('canvas'),
       antialias: true,
@@ -1137,27 +1137,9 @@
           }
         });
 
-        const fitBox = new THREE.Box3();
-        activeModel.traverse((obj) => {
-          if (obj.isMesh) fitBox.expandByObject(obj);
-        });
-        const fitCenter = fitBox.getCenter(new THREE.Vector3());
-        const fitSize = fitBox.getSize(new THREE.Vector3());
-        const fitMaxDim = Math.max(fitSize.x, fitSize.y, fitSize.z);
-
-        const aspect = window.innerWidth / window.innerHeight;
-        const mitadAltura = fitMaxDim * 0.65;
-        const mitadAncho = mitadAltura * aspect;
-        camera.left = -mitadAncho;
-        camera.right = mitadAncho;
-        camera.top = mitadAltura;
-        camera.bottom = -mitadAltura;
-        camera.updateProjectionMatrix();
-
-        const signo = currentArch === 'inferior' ? 1 : -1;
-        camera.position.set(fitCenter.x, fitCenter.y + signo * fitMaxDim, fitCenter.z + fitMaxDim);
-        camera.lookAt(fitCenter);
-        controls.target.copy(fitCenter);
+        camera.position.set(0, currentArch === 'inferior' ? 1.2 : -1.2, 2.8);
+        camera.lookAt(0, 0, 0);
+        controls.target.set(0, 0, 0);
         controls.update();
 
         buildGlobalHitBoxes();
@@ -2782,10 +2764,7 @@
     };
 
     window.addEventListener('resize', () => {
-      const aspect = window.innerWidth / window.innerHeight;
-      const mitadAltura = camera.top;
-      camera.left = -mitadAltura * aspect;
-      camera.right = mitadAltura * aspect;
+      camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
