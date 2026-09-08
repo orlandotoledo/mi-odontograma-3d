@@ -915,7 +915,7 @@
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xc8d3e0);
 
-    const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.01, 1000);
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.01, 100);
     const renderer = new THREE.WebGLRenderer({
       canvas: document.getElementById('canvas'),
       antialias: true,
@@ -1145,11 +1145,17 @@
         const fitSize = fitBox.getSize(new THREE.Vector3());
         const fitMaxDim = Math.max(fitSize.x, fitSize.y, fitSize.z);
 
-        const fov = camera.fov * (Math.PI / 180);
-        const distancia = (fitMaxDim / 2) / Math.tan(fov / 2) * 1.3;
-        const signo = currentArch === 'inferior' ? 1 : -1;
+        const aspect = window.innerWidth / window.innerHeight;
+        const mitadAltura = fitMaxDim * 0.65;
+        const mitadAncho = mitadAltura * aspect;
+        camera.left = -mitadAncho;
+        camera.right = mitadAncho;
+        camera.top = mitadAltura;
+        camera.bottom = -mitadAltura;
+        camera.updateProjectionMatrix();
 
-        camera.position.set(fitCenter.x, fitCenter.y + signo * distancia * 0.3, fitCenter.z + distancia);
+        const signo = currentArch === 'inferior' ? 1 : -1;
+        camera.position.set(fitCenter.x, fitCenter.y + signo * fitMaxDim, fitCenter.z + fitMaxDim);
         camera.lookAt(fitCenter);
         controls.target.copy(fitCenter);
         controls.update();
@@ -2776,7 +2782,10 @@
     };
 
     window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
+      const aspect = window.innerWidth / window.innerHeight;
+      const mitadAltura = camera.top;
+      camera.left = -mitadAltura * aspect;
+      camera.right = mitadAltura * aspect;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
