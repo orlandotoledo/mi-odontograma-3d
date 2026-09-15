@@ -1592,7 +1592,7 @@
         if (!pos) return;
 
         const p = getToothWorldPos(pos);
-        const bracketPos = p.clone().add(new THREE.Vector3(0, -yDir * 0.005, 0.06));
+        const bracketPos = p.clone().add(new THREE.Vector3(0, -yDir * 0.005, 0.085));
 
         if (bType) {
           bracketPoints.push(bracketPos);
@@ -1630,7 +1630,7 @@
 
         if (rec.pediatric === 'sellante') {
           const s = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.008, 0.012), new THREE.MeshBasicMaterial({ color: 0x10b981, depthTest: false }));
-          s.position.set(p.x, p.y + (yDir * 0.035), p.z);
+          s.position.set(p.x, p.y + (yDir * 0.065), p.z);
           pediatricGroup.add(s);
         }
         if (rec.pediatric === 'mantenedor') {
