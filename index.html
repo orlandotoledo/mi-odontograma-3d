@@ -1205,7 +1205,7 @@
             continue;
           }
           if (rec.general === 'corona') {
-            const crown = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), new THREE.MeshBasicMaterial({ color: itemColor, depthTest: false }));
+            const crown = new THREE.Mesh(new THREE.SphereGeometry(0.095, 16, 16), new THREE.MeshBasicMaterial({ color: itemColor, transparent: true, opacity: 0.25, depthTest: false }));
             crown.position.copy(p);
             pathologiesGroup.add(crown);
           }
@@ -1216,7 +1216,7 @@
           }
           if (rec.general === 'endodoncia') {
             const canal = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.008, 0.16, 10), new THREE.MeshBasicMaterial({ color: itemColor, depthTest: false }));
-            canal.position.set(p.x, p.y - (yDir * 0.02), p.z);
+            canal.position.set(p.x, p.y - (yDir * 0.06), p.z);
             pathologiesGroup.add(canal);
           }
           if (rec.restoration === 'inlay') {
@@ -1300,7 +1300,7 @@
         }
         if (rec.surgery === 'perno') {
           const post = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.008, 0.14, 10), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.85, depthTest: false }));
-          post.position.set(p.x, p.y + (yDir * 0.015), p.z);
+          post.position.set(p.x, p.y - (yDir * 0.10), p.z);
           surgeryGroup.add(post);
         }
         if (rec.surgery === 'bloque') {
@@ -1389,12 +1389,12 @@
         const isRight = parseInt(fdi) < 20 || (parseInt(fdi) >= 40 && parseInt(fdi) < 60) || parseInt(fdi) >= 80;
 
         const offsets = {
-          'mv': new THREE.Vector3(isRight ? -0.045 : 0.045, -yDir * 0.015, 0.055),
-          'v':  new THREE.Vector3(0, -yDir * 0.015, 0.06),
-          'dv': new THREE.Vector3(isRight ? 0.045 : -0.045, -yDir * 0.015, 0.055),
-          'ml': new THREE.Vector3(isRight ? -0.045 : 0.045, -yDir * 0.015, -0.055),
-          'l':  new THREE.Vector3(0, -yDir * 0.015, -0.06),
-          'dl': new THREE.Vector3(isRight ? 0.045 : -0.045, -yDir * 0.015, -0.055)
+          'mv': new THREE.Vector3(isRight ? -0.068 : 0.068, -yDir * 0.015, 0.083),
+          'v':  new THREE.Vector3(0, -yDir * 0.015, 0.09),
+          'dv': new THREE.Vector3(isRight ? 0.068 : -0.068, -yDir * 0.015, 0.083),
+          'ml': new THREE.Vector3(isRight ? -0.068 : 0.068, -yDir * 0.015, -0.083),
+          'l':  new THREE.Vector3(0, -yDir * 0.015, -0.09),
+          'dl': new THREE.Vector3(isRight ? 0.068 : -0.068, -yDir * 0.015, -0.083)
         };
 
         for (const [site, depth] of Object.entries(pRec.depths || {})) {
