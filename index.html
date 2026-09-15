@@ -1592,7 +1592,7 @@
         if (!pos) return;
 
         const p = getToothWorldPos(pos);
-        const bracketPos = p.clone().add(new THREE.Vector3(0, -yDir * 0.005, 0.085));
+        const bracketPos = p.clone().add(new THREE.Vector3(0, yDir * 0.075, 0.085));
 
         if (bType) {
           bracketPoints.push(bracketPos);
