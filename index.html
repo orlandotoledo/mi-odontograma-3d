@@ -716,7 +716,6 @@
       </div>
       <div id="modal-budget-list" style="max-height:220px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; margin-bottom:14px;"></div>
       <div class="modal-btns">
-        <button class="touch-btn" style="background:#16a34a; border-color:#22c55e; color:#fff;" onclick="closeBudgetModal(); openConsentModal('ghl');">🚀 Sincronizar con GHL</button>
         <button class="touch-btn btn-pdf" onclick="closeBudgetModal(); openConsentModal('pdf');">📄 Descargar Ficha PDF</button>
       </div>
     </div>
@@ -763,7 +762,6 @@
         <input type="text" id="pdf-patient-id" class="modal-input" placeholder="RUT / ID">
       </div>
       <input type="text" id="pdf-doctor-name" class="modal-input" value="Dr. Orlando Toledo">
-      <input type="tel" id="pdf-patient-phone" class="modal-input" placeholder="Teléfono paciente (+56 9 1234 5678) — requerido para GHL">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
         <label style="font-size: 11px; color: var(--text-muted); font-weight:700;">Firma Táctil:</label>
         <button onclick="clearSignature()" style="background:transparent; border:none; color:#f43f5e; font-size:11px; cursor:pointer; font-weight:700;">Limpiar</button>
@@ -771,7 +769,6 @@
       <canvas id="signature-pad" width="430" height="110"></canvas>
       <div class="modal-btns">
         <button class="touch-btn" onclick="closeConsentModal()">Cancelar</button>
-        <button class="touch-btn" style="background:#16a34a; border-color:#22c55e; color:#fff;" onclick="submitConsent('ghl')">🚀 GHL</button>
         <button class="touch-btn btn-pdf" onclick="submitConsent('pdf')">📄 Guardar PDF</button>
       </div>
     </div>
@@ -2325,19 +2322,12 @@
     window.submitConsent = function(type) {
       const pName = document.getElementById('pdf-patient-name').value.trim() || 'Paciente General';
       const pId = document.getElementById('pdf-patient-id').value.trim() || 'Sin Especificar';
-      const pPhone = document.getElementById('pdf-patient-phone').value.trim();
       const dName = document.getElementById('pdf-doctor-name').value.trim() || 'Dr. Orlando Toledo';
       const sigData = hasSignature ? sigCanvas.toDataURL('image/png') : null;
 
-      if (type === 'ghl' && !pPhone) {
-        alert('Ingresa el teléfono del paciente antes de enviar a GHL.');
-        return;
-      }
-
       closeConsentModal();
 
-      if (type === 'pdf') generatePDF(pName, pId, dName, sigData);
-      else syncToGHL(pName, pId, dName, sigData, pPhone);
+      generatePDF(pName, pId, dName, sigData);
     };
 
     function buildClinicalPDF(pName, pId, dName, sigImg) {
@@ -2628,76 +2618,6 @@
 
       doc.save(`Orden_Laboratorio_${pName.replace(/\s+/g, '_')}.pdf`);
       closeLabOrderModal();
-    }
-
-    // Reemplazar con la URL y el secreto reales (los mismos del .env
-    // del servicio odontograma_webhook.py en el EC2) antes de publicar.
-    // ⚠️ Esto corre en el navegador del paciente — el "secreto" es
-    // visible con Ver código fuente, no es autenticación real, solo
-    // filtra tráfico accidental.
-    const ODONTOGRAMA_WEBHOOK_URL = 'https://odontograma.orlandotoledo.com/webhook/odontograma';
-    const ODONTOGRAMA_WEBHOOK_SECRET = '09ec30cb812f54cd467df71c050db38bd91487ee33d29ad5';
-
-    async function syncToGHL(pName, pId, dName, sigImg, pPhone) {
-      const budget = calculateBudget();
-      const statusMsg = (t) => { const el = document.getElementById('status'); if (el) el.innerText = t; };
-      statusMsg('Generando consentimiento y enviando a GHL...');
-
-      const doc = buildClinicalPDF(pName, pId, dName, sigImg);
-      const consentimientoPdfBase64 = doc.output('datauristring');
-
-      // Lista de lo marcado como "Requerido" (no realizado todavía) —
-      // separado del desglose completo a propósito: esto es para que
-      // GHL pueda filtrar/etiquetar por tratamientos pendientes y
-      // armar retargeting de presupuestos sin cerrar, no para
-      // reemplazar la nota con el desglose completo que ya existe.
-      const LABELS_GENERAL = { corona: 'Corona', implante: 'Implante', ausente: 'Ausente' };
-      const LABELS_SURGERY = { exodoncia: 'Exodoncia', resto: 'Resto Radicular', impactado: 'Pieza Impactada', lesion: 'Quiste/Ápice', perno: 'Perno/Muñón', bloque: 'Injerto en Bloque', seno: 'Elevación de Seno', rog: 'ROG', gingivectomia: 'Gingivectomía', colgajo: 'Cirugía de Colgajo', rtg_perio: 'Regeneración Tisular Guiada', alargamiento: 'Alargamiento Coronario' };
-      const tratamientosRequeridos = [];
-      for (const [fdi, rec] of Object.entries(clinicalRecords)) {
-        if (rec.status !== 'diagnosticado') continue;
-        if (rec.general && LABELS_GENERAL[rec.general]) tratamientosRequeridos.push(`Pieza ${fdi}: ${LABELS_GENERAL[rec.general]}`);
-        if (rec.surgery && LABELS_SURGERY[rec.surgery]) tratamientosRequeridos.push(`Pieza ${fdi}: ${LABELS_SURGERY[rec.surgery]}`);
-        if (rec.canales && Object.values(rec.canales).some(v => v)) tratamientosRequeridos.push(`Pieza ${fdi}: Endodoncia`);
-      }
-
-      const payload = {
-        source: 'Odontograma 3D Tablet',
-        timestamp: new Date().toISOString(),
-        paciente: {
-          nombre: pName,
-          rut_id: pId,
-          doctor_tratante: dName,
-          telefono: pPhone,
-          consentimiento_aprobado: true,
-          alertas_medicas: medicalAlerts,
-          firma_base64: sigImg,
-          consentimiento_pdf_base64: consentimientoPdfBase64
-        },
-        total_presupuesto: budget.total,
-        moneda: 'CLP',
-        desglose: budget.items,
-        tratamientos_requeridos: tratamientosRequeridos,
-        detalles_clinicos: { general: clinicalRecords, periodoncia: perioRecords, removible: removableRecords, oclusion: occlusionRecords, atm: atmRecords, trauma: clinicalRecords, malposicion: clinicalRecords, estetica: esteticaRecords, ortodoncia: orthoRecords, puentes: bridges }
-      };
-
-      try {
-        const res = await fetch(ODONTOGRAMA_WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Odontograma-Secret': ODONTOGRAMA_WEBHOOK_SECRET },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.error || `Error HTTP ${res.status}`);
-
-        statusMsg('Sincronizado con GHL con éxito.');
-        const smsTxt = data.sms_enviado ? 'Confirmación por SMS enviada.' : 'No se pudo enviar el SMS (revisar en GHL).';
-        alert(`¡Presupuesto de $${budget.total.toLocaleString('es-CL')} CLP enviado a GoHighLevel!\n\nContacto: ${data.contact_id || '(ver GHL)'}\n${smsTxt}`);
-      } catch (err) {
-        console.error('Error al sincronizar con GHL:', err);
-        statusMsg('Error al sincronizar con GHL.');
-        alert(`No se pudo enviar a GHL: ${err.message}\n\nNada se perdió — puedes reintentar, o usar "Guardar PDF" como respaldo.`);
-      }
     }
 
     // Interacción Táctil y Raycasting

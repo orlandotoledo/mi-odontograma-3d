@@ -32,20 +32,9 @@ Esto agrega una dependencia: `index.html` ahora carga `DRACOLoader.js` (mismo CD
 
 **Si en algún momento reemplazas estos `.glb` por versiones nuevas sin comprimir**, hay que volver a pasarlas por `gltf-transform draco archivo.glb archivo.glb` antes de subirlas — si no, se puede volver a topar con el límite de GitHub.
 
-## La integración con GHL ya está conectada
+## Modo demostración (sin envío de datos)
 
-`syncToGHLWithConsent()` ahora hace un `fetch()` real al webhook (antes solo mostraba una alerta y no mandaba nada a ningún lado). Antes de publicar, reemplazar estas dos constantes cerca del inicio del `<script>`:
-
-```js
-const ODONTOGRAMA_WEBHOOK_URL = 'https://REEMPLAZAR-CON-TU-TUNNEL.orlandotoledo.com/webhook/odontograma';
-const ODONTOGRAMA_WEBHOOK_SECRET = 'REEMPLAZAR_CON_EL_MISMO_VALOR_DEL_.env';
-```
-
-Ver `../odontograma-ghl-integration/GHL_SETUP.md` para el resto de la configuración (custom fields, pipeline, variables de entorno del backend). El backend vive aparte, en el EC2 existente — no en este repo.
-
-⚠️ **Nota de seguridad real:** `ODONTOGRAMA_WEBHOOK_SECRET` corre en el navegador del paciente — cualquiera puede verlo con "Ver código fuente". No es autenticación, solo filtra tráfico accidental. No pongas ahí nada más sensible.
-
-Además, al sincronizar con GHL, el visor genera el mismo PDF clínico que el botón "Descargar PDF" (con la firma incrustada) y lo manda al backend para que quede adjunto al contacto en GHL — antes esa parte no existía.
+Desde el 15 nov 2026 este visor es **solo una demostración**: no envía datos a GoHighLevel ni a ningún servidor, y no contiene claves. Lo único que sale del navegador es el PDF que el usuario descarga. El odontograma del piloto dental es la herramienta simple de 5 superficies, con pacientes identificados por código.
 
 ## Deploy
 
